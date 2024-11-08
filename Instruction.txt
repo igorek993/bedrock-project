@@ -1,0 +1,15 @@
+1)How to start local dev environment?
+
+npm install --force
+
+npm run dev
+
+OLD INSTRUCTIONS BELOW FOR FUTURE USE!!!
+
+1)How to build?
+
+Uncomment // output: 'export'
+
+npm run build 
+
+npm start  - to check?
