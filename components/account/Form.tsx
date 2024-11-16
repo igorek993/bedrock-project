@@ -3,17 +3,18 @@ import { getPresignedUrl } from "@/serverFunctions/account/account";
 const initialState = { status: "", message: "" };
 
 export function UploadForm() {
-  async function uploadFiles(files) {
-    const presignedUrl = await getPresignedUrl(files);
-    console.log(presignedUrl.url);
-    console.log(files.get("file"));
+  async function uploadFiles(formData) {
+    if (!formData.getAll("files")[0].name) return;
+    const files = formData.getAll("files");
+    for (const file of files) {
+      const presignedUrl = await getPresignedUrl(file);
+      const fileUpload = await fetch(presignedUrl.url!, {
+        method: "PUT",
+        body: file,
+      });
 
-    const fileUpload = await fetch(presignedUrl.url, {
-      method: "PUT",
-      body: files.get("file"),
-    });
-
-    console.log(fileUpload);
+      console.log(fileUpload);
+    }
   }
   return (
     <div className="form-wrapper">

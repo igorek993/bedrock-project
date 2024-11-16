@@ -7,11 +7,10 @@ const client = new S3Client({
   region: process.env.AWS_REGION,
 });
 
-export async function getPresignedUrl(files) {
+export async function getPresignedUrl(file) {
   try {
-    const fileType = files.get("files")["type"];
-    const fileName = files.get("files")["name"];
-    console.log(fileName, fileType);
+    const fileType = file["type"];
+    const fileName = file["name"];
 
     const command = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME,
