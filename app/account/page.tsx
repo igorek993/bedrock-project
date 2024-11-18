@@ -2,7 +2,6 @@
 import LoginButton from "@/components/main/LoginButton";
 import { useSession } from "next-auth/react";
 import { UploadForm } from "@/components/account/UploadForm";
-import { SyncStatusIndicator } from "@/components/account/SyncStatusIndicator";
 // import { test } from "@/serverFunctions/account/account";
 
 function Account() {
@@ -16,7 +15,6 @@ function Account() {
             Добро пожаловать в ваш личный кабинет, {session.user.name}!
           </h1>
           <UploadForm />
-          <SyncStatusIndicator />
           {/* <button onClick={test}>test</button> */}
         </>
       )}

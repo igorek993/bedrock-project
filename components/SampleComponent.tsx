@@ -1,6 +1,6 @@
 import { getNumberOfFiles } from "@/serverFunctions/account/account";
 
-export function SyncStatusIndicator() {
+export function sampleFunction() {
   async function sampleFunction() {
     return "Bla";
   }
