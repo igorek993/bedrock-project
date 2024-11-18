@@ -1,7 +1,9 @@
 "use client";
 import LoginButton from "@/components/main/LoginButton";
 import { useSession } from "next-auth/react";
-import { UploadForm } from "@/components/account/Form";
+import { UploadForm } from "@/components/account/UploadForm";
+import { SyncStatusIndicator } from "@/components/account/SyncStatusIndicator";
+// import { test } from "@/serverFunctions/account/account";
 
 function Account() {
   const { data: session, status } = useSession();
@@ -14,6 +16,8 @@ function Account() {
             Добро пожаловать в ваш личный кабинет, {session.user.name}!
           </h1>
           <UploadForm />
+          <SyncStatusIndicator />
+          {/* <button onClick={test}>test</button> */}
         </>
       )}
       {!status && (
