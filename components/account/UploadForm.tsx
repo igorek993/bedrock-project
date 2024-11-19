@@ -7,8 +7,9 @@ import { useState, useEffect } from "react";
 
 export function UploadForm() {
   const [objectCount, setObjectCount] = useState();
-  const [filesSynced, setfilesSynced] = useState(false);
+  const [filesSynced, setFilesSynced] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [filesSelected, setFilesSelected] = useState(false);
 
   async function fetchFileCount() {
     const response = await getNumberOfFiles();
@@ -23,16 +24,16 @@ export function UploadForm() {
     setLoading(true);
     const response = await syncFiles();
     if (response.status === "success") {
-      setfilesSynced(true);
+      setFilesSynced(true);
       setLoading(false);
     } else {
-      setfilesSynced(false);
+      setFilesSynced(false);
       setLoading(false);
     }
   }
 
   async function uploadFiles(formData) {
-    if (!formData.getAll("files")[0].name) return;
+    if (!formData.getAll("files")[0]?.name) return;
     const files = formData.getAll("files");
     for (const file of files) {
       const presignedUrl = await getPresignedUrl(file);
@@ -40,15 +41,19 @@ export function UploadForm() {
         method: "PUT",
         body: file,
       });
-
       console.log(fileUpload);
     }
     fetchFileCount();
   }
 
+  function handleFileChange(event) {
+    const files = event.target.files;
+    setFilesSelected(files.length > 0);
+  }
+
   useEffect(() => {
-    fetchFileCount(); // Trigger the function when the component renders
-  }, []); // Empty dependency array ensures this runs only once after initial render
+    fetchFileCount();
+  }, []);
 
   return (
     <div
@@ -61,7 +66,11 @@ export function UploadForm() {
       }}
     >
       <form
-        action={uploadFiles}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          uploadFiles(formData);
+        }}
         className="flex flex-col space-y-4"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
@@ -72,35 +81,40 @@ export function UploadForm() {
         >
           Select Files to Upload
         </label>
-        <input
-          type="file"
-          id="files"
-          name="files"
-          accept="*"
-          multiple
-          className="block w-full text-sm text-gray-900 rounded-lg cursor-pointer focus:outline-none"
-          style={{
-            background: "#2a2a2a",
-            border: "2px solid #1976d2",
-            color: "#ffffff",
-            padding: "10px 12px",
-          }}
-        />
+        <div className="relative">
+          <input
+            type="file"
+            id="files"
+            name="files"
+            accept="*"
+            multiple
+            onChange={handleFileChange}
+            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+          />
+          <div
+            className="w-full py-2 px-4 text-center rounded-lg"
+            style={{
+              background: "#2a2a2a",
+              border: "2px solid #1976d2",
+              color: "#ffffff",
+              fontWeight: "bold",
+            }}
+          >
+            Choose Files
+          </div>
+        </div>
         <button
           type="submit"
-          className="py-2 px-4 font-bold rounded-lg"
+          disabled={!filesSelected}
+          className={`py-2 px-4 font-bold rounded-lg ${
+            filesSelected
+              ? "bg-blue-700 hover:bg-blue-800 text-white"
+              : "bg-gray-500 text-gray-300 cursor-not-allowed"
+          }`}
           style={{
-            backgroundColor: "#0d47a1",
-            color: "#ffffff",
             transition: "all 0.2s ease-in-out",
             boxShadow: "0px 2px 12px rgba(0, 0, 0, 0.2)",
           }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "#1565c0")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0d47a1")
-          }
         >
           Upload
         </button>
@@ -109,9 +123,9 @@ export function UploadForm() {
         <div
           className="text-center px-4 py-2 rounded-lg"
           style={{
-            background: "rgba(255, 255, 255, 0.1)", // Subtle transparent background
-            border: "2px solid #42a5f5", // Light blue border
-            color: "#64b5f6", // Highlighted text color
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "2px solid #42a5f5",
+            color: "#64b5f6",
             fontWeight: "bold",
             fontSize: "1.1rem",
           }}
@@ -123,9 +137,9 @@ export function UploadForm() {
           <div
             className="text-center px-4 py-2 mt-2 rounded-lg"
             style={{
-              background: "rgba(0, 200, 83, 0.1)", // Subtle green background
-              border: "2px solid #66bb6a", // Light green border
-              color: "#81c784", // Green text color
+              background: "rgba(0, 200, 83, 0.1)",
+              border: "2px solid #66bb6a",
+              color: "#81c784",
               fontWeight: "bold",
               fontSize: "1.1rem",
             }}
@@ -136,19 +150,11 @@ export function UploadForm() {
         {!filesSynced && !loading && (
           <button
             onClick={localSyncFiles}
-            className="py-2 px-4 font-bold rounded-lg"
+            className="py-2 px-4 font-bold rounded-lg bg-blue-700 hover:bg-blue-800 text-white"
             style={{
-              backgroundColor: "#0d47a1",
-              color: "#ffffff",
               transition: "all 0.2s ease-in-out",
               boxShadow: "0px 2px 12px rgba(0, 0, 0, 0.2)",
             }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#1565c0")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#0d47a1")
-            }
           >
             Sync Files
           </button>
@@ -157,9 +163,9 @@ export function UploadForm() {
           <div
             className="text-center px-4 py-2 mt-2 rounded-lg"
             style={{
-              background: "rgba(255, 193, 7, 0.1)", // Subtle yellow background
-              border: "2px solid #ffb300", // Light yellow border
-              color: "#ffca28", // Yellow text color
+              background: "rgba(255, 193, 7, 0.1)",
+              border: "2px solid #ffb300",
+              color: "#ffca28",
               fontWeight: "bold",
               fontSize: "1.1rem",
             }}

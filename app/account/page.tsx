@@ -3,7 +3,6 @@ import LoginButton from "@/components/main/LoginButton";
 import { useSession } from "next-auth/react";
 import { UploadForm } from "@/components/account/UploadForm";
 import { ChatWindow } from "@/components/account/ChatWindow";
-import { test } from "@/serverFunctions/account/account";
 
 function Account() {
   const { data: session, status } = useSession();
@@ -12,11 +11,20 @@ function Account() {
     <div className="flex flex-col items-center justify-center text-center">
       {session && session.user && (
         <>
-          <h1 className="mb-10">
+          <h1 className="mb-10 text-xl font-bold">
             Добро пожаловать в ваш личный кабинет, {session.user.name}!
           </h1>
-          <UploadForm />
-          <ChatWindow />
+          <div className="flex flex-row justify-between w-full max-w-6xl">
+            {/* ChatWindow on the left */}
+            <div className="w-1/2 pr-4">
+              <ChatWindow />
+            </div>
+
+            {/* UploadForm on the right */}
+            <div className="w-1/2 pl-10">
+              <UploadForm />
+            </div>
+          </div>
         </>
       )}
       {!status && (
