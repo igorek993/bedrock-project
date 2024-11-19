@@ -88,7 +88,7 @@ export function ChatWindow() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
-      bgcolor="#121212" // Dark background for the entire page
+      // bgcolor="#121212" // Dark background for the entire page
       sx={{
         backgroundImage: "url(/BBBackground.png)", // Replace with your image path
         backgroundSize: "cover", // Cover the entire page
