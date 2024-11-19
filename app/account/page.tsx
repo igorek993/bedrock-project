@@ -2,7 +2,8 @@
 import LoginButton from "@/components/main/LoginButton";
 import { useSession } from "next-auth/react";
 import { UploadForm } from "@/components/account/UploadForm";
-// import { test } from "@/serverFunctions/account/account";
+import { ChatWindow } from "@/components/account/ChatWindow";
+import { test } from "@/serverFunctions/account/account";
 
 function Account() {
   const { data: session, status } = useSession();
@@ -15,7 +16,7 @@ function Account() {
             Добро пожаловать в ваш личный кабинет, {session.user.name}!
           </h1>
           <UploadForm />
-          {/* <button onClick={test}>test</button> */}
+          <ChatWindow />
         </>
       )}
       {!status && (

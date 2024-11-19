@@ -13,11 +13,20 @@ import {
   StartIngestionJobCommand,
 } from "@aws-sdk/client-bedrock-agent";
 
+import {
+  BedrockAgentRuntimeClient,
+  RetrieveAndGenerateCommand,
+} from "@aws-sdk/client-bedrock-agent-runtime";
+
 const clientS3 = new S3Client({
   region: process.env.AWS_REGION,
 });
 
 const clientBedrockAgentClient = new BedrockAgentClient({
+  region: process.env.AWS_REGION,
+});
+
+const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
   region: process.env.AWS_REGION,
 });
 
@@ -43,8 +52,8 @@ export async function getPresignedUrl(file) {
 export async function syncFiles() {
   try {
     const command = new StartIngestionJobCommand({
-      knowledgeBaseId: "CBK4MJJ67Y",
-      dataSourceId: "JMZKKETB82",
+      knowledgeBaseId: "SZPAPBNRPF",
+      dataSourceId: "JIMYT2EPRK",
     });
 
     const response = await clientBedrockAgentClient.send(command);
@@ -80,6 +89,40 @@ export async function getNumberOfFiles() {
       status: "error",
       message: "Error fetching the number of files from the bucket.",
     };
+  }
+}
+
+export async function processClientMessage(message: string) {
+  try {
+    const input = {
+      input: { text: message },
+      retrieveAndGenerateConfiguration: {
+        type: "KNOWLEDGE_BASE", // or "EXTERNAL_SOURCES"
+        knowledgeBaseConfiguration: {
+          knowledgeBaseId: "SZPAPBNRPF", // Replace with your actual Knowledge Base ID
+          modelArn:
+            "arn:aws:bedrock:ap-southeast-2:665628331607:inference-profile/apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
+          // modelArn:
+          //   "arn:aws:bedrock:ap-southeast-2::foundation-model/anthropic.claude-3-haiku-20240307-v1:0", // Replace with your model ARN
+        },
+      },
+    };
+    const command = new RetrieveAndGenerateCommand(input);
+    const response = await clientBedrockAgentRuntimeClient.send(command);
+    // console.log(response);
+    console.log(response.output);
+    // console.log(response.citations[0].generatedResponsePart);
+    // console.log("--------------------------------------------");
+    // console.log(response.citations[0].retrievedReferences);
+    return {
+      text: response.output?.text,
+      status: "success",
+      message: "",
+      ok: true,
+    };
+  } catch (error) {
+    console.log(error);
+    return { status: "error", message: "Error", ok: false };
   }
 }
 
