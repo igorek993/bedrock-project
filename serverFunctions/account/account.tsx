@@ -1,6 +1,8 @@
 "use server";
 
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import parse from "html-react-parser";
+
 import {
   S3Client,
   PutObjectCommand,
@@ -30,7 +32,7 @@ const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
   region: process.env.AWS_REGION,
 });
 
-export async function getPresignedUrl(file) {
+export async function getPresignedUrlUpload(file) {
   try {
     const fileType = file["type"];
     const fileName = file["name"];
@@ -52,8 +54,8 @@ export async function getPresignedUrl(file) {
 export async function syncFiles() {
   try {
     const command = new StartIngestionJobCommand({
-      knowledgeBaseId: "SZPAPBNRPF",
-      dataSourceId: "JIMYT2EPRK",
+      knowledgeBaseId: "98LLVW8PJU",
+      dataSourceId: "X51ZIL4RBJ",
     });
 
     const response = await clientBedrockAgentClient.send(command);
@@ -92,6 +94,10 @@ export async function getNumberOfFiles() {
   }
 }
 
+function generateReferences(initiallResponse) {
+  return processedResponse;
+}
+
 export async function processClientMessage(message: string) {
   try {
     const input = {
@@ -99,30 +105,42 @@ export async function processClientMessage(message: string) {
       retrieveAndGenerateConfiguration: {
         type: "KNOWLEDGE_BASE", // or "EXTERNAL_SOURCES"
         knowledgeBaseConfiguration: {
-          knowledgeBaseId: "SZPAPBNRPF", // Replace with your actual Knowledge Base ID
-          modelArn:
-            "arn:aws:bedrock:ap-southeast-2:665628331607:inference-profile/apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
+          knowledgeBaseId: "98LLVW8PJU", // Replace with your actual Knowledge Base ID
           // modelArn:
-          //   "arn:aws:bedrock:ap-southeast-2::foundation-model/anthropic.claude-3-haiku-20240307-v1:0", // Replace with your model ARN
+          //   "arn:aws:bedrock:ap-southeast-2:665628331607:inference-profile/apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
+          modelArn:
+            "arn:aws:bedrock:ap-southeast-2::foundation-model/anthropic.claude-3-haiku-20240307-v1:0", // Replace with your model ARN
         },
       },
     };
     const command = new RetrieveAndGenerateCommand(input);
     const response = await clientBedrockAgentRuntimeClient.send(command);
-    // console.log(response);
-    console.log(response.output);
+
+    const initialText = response.output?.text;
+
+    // const finalResponse = generateReferences(response);
+    // const finalHtml = parse(
+    //   `<h1>${initialText}</h1><button>puFDJSAKLJL<button/>`
+    // );
+
+    // console.log("--------------------------------------------");
+    // console.log(response.output);
+    // console.log("--------------------------------------------");
     // console.log(response.citations[0].generatedResponsePart);
     // console.log("--------------------------------------------");
     // console.log(response.citations[0].retrievedReferences);
+    // console.log("--------------------------------------------");
+    // console.log(response.citations[0].retrievedReferences[0].location);
+    // console.log("--------------------------------------------");
+    // console.log(response.citations[0].retrievedRefer ences);
+
     return {
-      text: response.output?.text,
-      status: "success",
-      message: "",
+      text: initialText,
       ok: true,
     };
   } catch (error) {
     console.log(error);
-    return { status: "error", message: "Error", ok: false };
+    return { ok: false };
   }
 }
 

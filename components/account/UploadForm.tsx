@@ -1,5 +1,5 @@
 import {
-  getPresignedUrl,
+  getPresignedUrlUpload,
   getNumberOfFiles,
   syncFiles,
 } from "@/serverFunctions/account/account";
@@ -36,7 +36,7 @@ export function UploadForm() {
     if (!formData.getAll("files")[0]?.name) return;
     const files = formData.getAll("files");
     for (const file of files) {
-      const presignedUrl = await getPresignedUrl(file);
+      const presignedUrl = await getPresignedUrlUpload(file);
       const fileUpload = await fetch(presignedUrl.url!, {
         method: "PUT",
         body: file,

@@ -44,7 +44,7 @@ export function ChatWindow() {
       const response = await processClientMessage(newMessage.content);
 
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status}`);
+        throw new Error(`Response was not ok`);
       }
 
       // Update the assistant's message with the actual response
