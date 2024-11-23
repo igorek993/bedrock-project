@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.hover-div {
+  visibility: hidden;
+  position: absolute;
+  opacity: 0;
+  background-color: white;
+  color: black;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: visibility 0s 0.3s, opacity 0.3s ease-in-out;
+  white-space: normal; /* Allow text to wrap */
+  max-width: 300px; /* Limit the width */
+  word-wrap: break-word; /* Break long words if necessary */
+}
+
+.hover-target {
+  position: relative;
+}
+
+.hover-target:hover .hover-div {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}

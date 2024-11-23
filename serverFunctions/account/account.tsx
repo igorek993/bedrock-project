@@ -2,6 +2,7 @@
 
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import parse from "html-react-parser";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 import {
   S3Client,
@@ -54,8 +55,8 @@ export async function getPresignedUrlUpload(file) {
 export async function syncFiles() {
   try {
     const command = new StartIngestionJobCommand({
-      knowledgeBaseId: "98LLVW8PJU",
-      dataSourceId: "X51ZIL4RBJ",
+      knowledgeBaseId: process.env.KNOWLEDGEBASE_ID,
+      dataSourceId: process.env.DATASOURCE_ID,
     });
 
     const response = await clientBedrockAgentClient.send(command);
@@ -94,8 +95,57 @@ export async function getNumberOfFiles() {
   }
 }
 
-function generateReferences(initiallResponse) {
-  return processedResponse;
+async function generatePresignedDownloadUrl(s3Location) {
+  try {
+    // Log the input for debugging purposes
+    console.log("generatePresignedDownloadUrl called with:", s3Location);
+
+    // Hardcoded URL
+    const hardcodedUrl = "https://rupn.online";
+    return hardcodedUrl;
+  } catch (error) {
+    console.error("Error generating download URL:", error);
+    return null;
+  }
+}
+
+export async function generateReferences(initialResponse) {
+  try {
+    const inititalText = initialResponse.output.text;
+    let finalHtml = inititalText;
+    const citations = initialResponse.citations;
+
+    if (!citations || citations.length === 0) return inititalText;
+
+    for (let i = 0; i < citations.length; i++) {
+      const generatedResponsePart = citations[i].generatedResponsePart;
+      const retrievedReferences =
+        citations[i].retrievedReferences[i].content.text;
+      console.log(`kakaka, ${retrievedReferences}`);
+
+      // Extract the citation text
+      const citationText = generatedResponsePart.textResponsePart.text;
+
+      // Append [x] where x is the citation number
+      finalHtml = finalHtml.replace(
+        citationText,
+        `${citationText} <span class="hover-target">[${i + 1}]
+          <div class="hover-div">
+            ${
+              retrievedReferences.length > 200
+                ? retrievedReferences.substring(0, 200) + "..."
+                : retrievedReferences
+            }
+          </div>
+        </span>`
+      );
+    }
+
+    return parse(finalHtml);
+  } catch (error) {
+    console.error("Error in generateReferences:", error);
+    return "Error generating references";
+  }
 }
 
 export async function processClientMessage(message: string) {
@@ -105,7 +155,7 @@ export async function processClientMessage(message: string) {
       retrieveAndGenerateConfiguration: {
         type: "KNOWLEDGE_BASE", // or "EXTERNAL_SOURCES"
         knowledgeBaseConfiguration: {
-          knowledgeBaseId: "98LLVW8PJU", // Replace with your actual Knowledge Base ID
+          knowledgeBaseId: process.env.KNOWLEDGEBASE_ID, // Replace with your actual Knowledge Base ID
           // modelArn:
           //   "arn:aws:bedrock:ap-southeast-2:665628331607:inference-profile/apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
           modelArn:
@@ -116,26 +166,27 @@ export async function processClientMessage(message: string) {
     const command = new RetrieveAndGenerateCommand(input);
     const response = await clientBedrockAgentRuntimeClient.send(command);
 
-    const initialText = response.output?.text;
+    // const initialText = response.output?.text;
 
-    // const finalResponse = generateReferences(response);
+    const finalHtml = await generateReferences(response);
+
     // const finalHtml = parse(
     //   `<h1>${initialText}</h1><button>puFDJSAKLJL<button/>`
     // );
 
-    // console.log("--------------------------------------------");
-    // console.log(response.output);
-    // console.log("--------------------------------------------");
-    // console.log(response.citations[0].generatedResponsePart);
-    // console.log("--------------------------------------------");
-    // console.log(response.citations[0].retrievedReferences);
-    // console.log("--------------------------------------------");
+    console.log("--------------------------------------------");
+    console.log(response.output);
+    console.log("--------------------------------------------");
+    console.log(response.citations[0].generatedResponsePart);
+    console.log("--------------------------------------------");
+    console.log(response.citations[0].retrievedReferences);
+    console.log("--------------------------------------------");
     // console.log(response.citations[0].retrievedReferences[0].location);
-    // console.log("--------------------------------------------");
+    console.log("--------------------------------------------");
     // console.log(response.citations[0].retrievedRefer ences);
 
     return {
-      text: initialText,
+      text: finalHtml,
       ok: true,
     };
   } catch (error) {
