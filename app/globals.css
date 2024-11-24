@@ -21,6 +21,7 @@
 
 .reference-hover-target {
   position: relative;
+  display: ruby;
 }
 
 .reference-hover-target:hover .reference-hover-div {
