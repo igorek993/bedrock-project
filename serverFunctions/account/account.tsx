@@ -20,6 +20,7 @@ import {
   BedrockAgentRuntimeClient,
   RetrieveAndGenerateCommand,
 } from "@aws-sdk/client-bedrock-agent-runtime";
+import { init } from "next/dist/compiled/webpack/webpack";
 
 const clientS3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -130,57 +131,54 @@ function getS3DocumentName(s3ObjectString) {
   return parts[parts.length - 1];
 }
 
+function getReferenceHover(count, body, url, name) {
+  return `<span class="reference-hover-target">[${count}]
+<div class="reference-hover-div">
+  ${body}
+  <a class="reference-hover-link" target="_blank" href="${url}">Скачать документ: ${name}</a>
+</div>
+</span>`;
+}
+
 export async function generateReferences(initialResponse) {
   try {
     const inititalText = initialResponse.output.text;
     let finalHtml = inititalText;
-    const citations = initialResponse.citations;
+    // console.log(JSON.stringify(initialResponse, undefined, 2));
 
-    if (!citations || citations.length === 0) return inititalText;
+    let citationCount = 1;
+    for (const citation of initialResponse.citations) {
+      const references = await Promise.all(
+        citation.retrievedReferences.map(async (reference) => {
+          const fullBody = reference.content.text;
+          const body =
+            fullBody.length > 200
+              ? fullBody.substring(0, 200) + "..."
+              : fullBody;
 
-    for (let i = 0; i < citations.length; i++) {
-      const generatedResponsePart = citations[i].generatedResponsePart;
+          const documentName = getS3DocumentName(
+            reference.location.s3Location.uri
+          );
+          const downloadUrl = await generatePresignedDownloadUrl(
+            process.env.S3_BUCKET_NAME,
+            documentName
+          );
+          reference = getReferenceHover(
+            citationCount,
+            body,
+            downloadUrl,
+            documentName
+          );
+          citationCount++;
 
-      if (
-        !citations[i].retrievedReferences ||
-        citations[i].retrievedReferences.length === 0
-      )
-        continue;
-
-      for (
-        let referenceNumber = 0;
-        referenceNumber < citations[i].retrievedReferences.length;
-        referenceNumber++
-      ) {
-        const retrievedReferences =
-          citations[i].retrievedReferences[referenceNumber].content.text;
-        const ducumentPath =
-          citations[i].retrievedReferences[referenceNumber].location.s3Location
-            .uri;
-
-        // Extract the citation text
-        const citationText = generatedResponsePart.textResponsePart.text;
-        const documentName = getS3DocumentName(ducumentPath);
-        const downloadUrl = await generatePresignedDownloadUrl(
-          process.env.S3_BUCKET_NAME,
-          documentName
-        );
-
-        // generate HTML
-        finalHtml = finalHtml.replace(
-          citationText,
-          `${citationText} <span class="reference-hover-target">[${i + 1}]
-          <div class="reference-hover-div">
-            ${
-              retrievedReferences.length > 200
-                ? retrievedReferences.substring(0, 200) + "..."
-                : retrievedReferences
-            }
-            <a class="reference-hover-link" target="_blank" href="${downloadUrl}">Скачать документ: ${documentName}</a>
-          </div>
-        </span>`
-        );
-      }
+          return reference;
+        })
+      );
+      const citationText = citation.generatedResponsePart.textResponsePart.text;
+      finalHtml = finalHtml.replace(
+        citationText,
+        citationText + references.join(" ")
+      );
     }
 
     return parse(finalHtml);
@@ -208,20 +206,9 @@ export async function processClientMessage(message: string) {
     const command = new RetrieveAndGenerateCommand(input);
     const response = await clientBedrockAgentRuntimeClient.send(command);
 
-    const initialText = response.output?.text;
-
+    console.log("received response");
     const finalHtml = await generateReferences(response);
-
-    // const finalHtml = parse(
-    //   `<h1>${initialText}</h1><button>puFDJSAKLJL<button/>`
-    // );
-
-    console.log("--------------------------------------------1");
-    console.log(response.citations);
-    console.log("--------------------------------------------2");
-    console.log(initialText);
-    // console.log("--------------------------------------------3");
-    // console.log(response.citations[1].retrievedReferences);
+    console.log("end");
 
     return {
       text: finalHtml,
