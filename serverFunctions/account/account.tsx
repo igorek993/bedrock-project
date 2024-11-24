@@ -95,18 +95,39 @@ export async function getNumberOfFiles() {
   }
 }
 
-async function generatePresignedDownloadUrl(s3Location) {
+async function generatePresignedDownloadUrl(bucketName, key) {
   try {
     // Log the input for debugging purposes
-    console.log("generatePresignedDownloadUrl called with:", s3Location);
+    // console.log(
+    //   "Generating presigned URL for bucket:",
+    //   bucketName,
+    //   "key:",
+    //   key
+    // );
 
-    // Hardcoded URL
-    const hardcodedUrl = "https://rupn.online";
-    return hardcodedUrl;
+    // Create a GetObjectCommand
+    const command = new GetObjectCommand({ Bucket: bucketName, Key: key });
+
+    // Generate a presigned URL valid for 60 minutes
+    const presignedUrl = await getSignedUrl(clientS3, command, {
+      expiresIn: 3600,
+    });
+
+    return presignedUrl;
   } catch (error) {
-    console.error("Error generating download URL:", error);
+    console.error("Error generating presigned download URL:", error);
     return null;
   }
+}
+
+function getS3DocumentName(s3ObjectString) {
+  if (!s3ObjectString.startsWith("s3://")) {
+    throw new Error("Invalid S3 object string format.");
+  }
+
+  // Extract the document name
+  const parts = s3ObjectString.split("/");
+  return parts[parts.length - 1];
 }
 
 export async function generateReferences(initialResponse) {
@@ -119,23 +140,31 @@ export async function generateReferences(initialResponse) {
 
     for (let i = 0; i < citations.length; i++) {
       const generatedResponsePart = citations[i].generatedResponsePart;
+      if (!citations[i].retrievedReferences[i]) return inititalText;
       const retrievedReferences =
         citations[i].retrievedReferences[i].content.text;
-      console.log(`kakaka, ${retrievedReferences}`);
+      const ducumentPath =
+        citations[i].retrievedReferences[i].location.s3Location.uri;
 
       // Extract the citation text
       const citationText = generatedResponsePart.textResponsePart.text;
+      const documentName = getS3DocumentName(ducumentPath);
+      const downloadUrl = await generatePresignedDownloadUrl(
+        process.env.S3_BUCKET_NAME,
+        documentName
+      );
 
-      // Append [x] where x is the citation number
+      // generate HTML
       finalHtml = finalHtml.replace(
         citationText,
-        `${citationText} <span class="hover-target">[${i + 1}]
-          <div class="hover-div">
+        `${citationText} <span class="reference-hover-target">[${i + 1}]
+          <div class="reference-hover-div">
             ${
               retrievedReferences.length > 200
                 ? retrievedReferences.substring(0, 200) + "..."
                 : retrievedReferences
             }
+            <a class="reference-hover-link" href="${downloadUrl}">${documentName}</a>
           </div>
         </span>`
       );
@@ -174,15 +203,15 @@ export async function processClientMessage(message: string) {
     //   `<h1>${initialText}</h1><button>puFDJSAKLJL<button/>`
     // );
 
-    console.log("--------------------------------------------");
-    console.log(response.output);
-    console.log("--------------------------------------------");
-    console.log(response.citations[0].generatedResponsePart);
-    console.log("--------------------------------------------");
-    console.log(response.citations[0].retrievedReferences);
-    console.log("--------------------------------------------");
+    // console.log("--------------------------------------------");
+    // console.log(response.output);
+    // console.log("--------------------------------------------");
+    // console.log(response.citations[0].generatedResponsePart);
+    // console.log("--------------------------------------------");
+    // console.log(response.citations[0].retrievedReferences);
+    // console.log("--------------------------------------------");
     // console.log(response.citations[0].retrievedReferences[0].location);
-    console.log("--------------------------------------------");
+    // console.log("--------------------------------------------");
     // console.log(response.citations[0].retrievedRefer ences);
 
     return {

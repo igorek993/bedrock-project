@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-.hover-div {
+.reference-hover-div {
   visibility: hidden;
   position: absolute;
   opacity: 0;
@@ -14,15 +14,30 @@
   transition: visibility 0s 0.3s, opacity 0.3s ease-in-out;
   white-space: normal; /* Allow text to wrap */
   max-width: 300px; /* Limit the width */
+  min-width: 270px;
   word-wrap: break-word; /* Break long words if necessary */
+  transform: translateY(-100%); /* Center the tooltip horizontally */
 }
 
-.hover-target {
+.reference-hover-target {
   position: relative;
 }
 
-.hover-target:hover .hover-div {
+.reference-hover-target:hover .reference-hover-div {
   visibility: visible;
   opacity: 1;
   transition-delay: 0s;
+}
+
+.reference-hover-link {
+  display: block;
+  background-color: grey; /* Default background color */
+  border: 1px solid black; /* Adds a black border */
+  padding: 5px; /* Optional: Adds spacing */
+  border-radius: 3px; /* Optional: Rounds the corners */
+  transition: background-color 0.3s; /* Smooth transition effect */
+}
+
+.reference-hover-link:hover {
+  background-color: darkgrey; /* Background color on hover */
 }
