@@ -164,7 +164,7 @@ export async function generateReferences(initialResponse) {
                 ? retrievedReferences.substring(0, 200) + "..."
                 : retrievedReferences
             }
-            <a class="reference-hover-link" href="${downloadUrl}">${documentName}</a>
+            <a class="reference-hover-link" href="${downloadUrl}">Скачать документ: ${documentName}</a>
           </div>
         </span>`
       );
