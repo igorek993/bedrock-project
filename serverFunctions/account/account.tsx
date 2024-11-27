@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import parse from "html-react-parser";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 export async function authExample() {
   try {
@@ -234,6 +234,31 @@ export async function processClientMessage(message: string) {
   } catch (error) {
     console.log(error);
     return { ok: false };
+  }
+}
+
+export async function deleteFile(fileName) {
+  try {
+    // Define the command to delete the file
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME, // The S3 bucket name
+      Key: fileName, // The file name (object key)
+    });
+
+    // Send the command to S3
+    await clientS3.send(command);
+
+    return {
+      status: "success",
+      message: `File "${fileName}" successfully deleted.`,
+    };
+  } catch (error) {
+    console.error("Error deleting file from S3:", error);
+
+    return {
+      status: "error",
+      message: `Error deleting file "${fileName}" from S3: ${error.message}`,
+    };
   }
 }
 

@@ -3,6 +3,7 @@ import {
   listFiles,
   syncFiles,
   generatePresignedDownloadUrl,
+  deleteFile,
 } from "@/serverFunctions/account/account";
 import { useState, useEffect } from "react";
 
@@ -26,6 +27,11 @@ export function UploadForm() {
   async function handleDownload(fileName) {
     const url = await generatePresignedDownloadUrl(fileName);
     window.open(url, "_blank");
+  }
+
+  async function handleDelete(fileName) {
+    const url = await deleteFile(fileName);
+    //remove the file from the list
   }
 
   async function localSyncFiles() {
@@ -207,13 +213,52 @@ export function UploadForm() {
               {/* File Size Column */}
               <span className="w-1/5 text-center">{file.size} MB</span>
 
-              {/* Download Button Column */}
-              <button
-                onClick={() => handleDownload(file.name)}
-                className="w-1/3 py-1 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded"
-              >
-                Download
-              </button>
+              {/* Action Buttons Column */}
+              <div className="w-1/3 flex justify-end gap-2">
+                {/* Download Button */}
+                <button
+                  onClick={() => handleDownload(file.name)}
+                  className="flex items-center justify-center py-1 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded"
+                  title="Download"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+                </button>
+
+                {/* Delete Button */}
+                <button
+                  onClick={() => handleDelete(file.name)}
+                  className="flex items-center justify-center py-1 px-3 bg-red-600 hover:bg-red-700 text-white rounded"
+                  title="Delete"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
             </li>
           ))}
         </ul>
