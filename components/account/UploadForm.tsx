@@ -1,7 +1,8 @@
 import {
   getPresignedUrlUpload,
-  getNumberOfFiles,
+  listFiles,
   syncFiles,
+  generatePresignedDownloadUrl,
 } from "@/serverFunctions/account/account";
 import { useState, useEffect } from "react";
 
@@ -10,14 +11,21 @@ export function UploadForm() {
   const [filesSynced, setFilesSynced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [filesSelected, setFilesSelected] = useState(false);
+  const [fileList, setFileList] = useState([]);
 
   async function fetchFileCount() {
-    const response = await getNumberOfFiles();
+    const response = await listFiles();
     if (response.status === "success") {
       setObjectCount(response.fileCount);
+      setFileList(response.files);
     } else {
       setObjectCount("Error");
     }
+  }
+
+  async function handleDownload(fileName) {
+    const url = await generatePresignedDownloadUrl(fileName);
+    window.open(url, "_blank");
   }
 
   async function localSyncFiles() {
@@ -57,7 +65,7 @@ export function UploadForm() {
 
   return (
     <div
-      className="max-w-lg mx-auto mt-10 p-6 rounded-lg shadow"
+      className="max-w-lg mx-auto p-6 rounded-lg shadow"
       style={{
         background: "linear-gradient(145deg, #000000, #003366)",
         border: "2px solid #64b5f6",
@@ -120,19 +128,6 @@ export function UploadForm() {
         </button>
       </form>
       <div className="flex flex-col space-y-2 mt-4 items-center">
-        <div
-          className="text-center px-4 py-2 rounded-lg"
-          style={{
-            background: "rgba(255, 255, 255, 0.1)",
-            border: "2px solid #42a5f5",
-            color: "#64b5f6",
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-          }}
-        >
-          Current files count:{" "}
-          <span style={{ fontSize: "1.2rem" }}>{objectCount}</span>
-        </div>
         {filesSynced && (
           <div
             className="text-center px-4 py-2 mt-2 rounded-lg"
@@ -159,6 +154,19 @@ export function UploadForm() {
             Sync Files
           </button>
         )}
+        <div
+          className="text-center px-4 py-2 rounded-lg"
+          style={{
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "2px solid #42a5f5",
+            color: "#64b5f6",
+            fontWeight: "bold",
+            fontSize: "1.1rem",
+          }}
+        >
+          Current files count:{" "}
+          <span style={{ fontSize: "1.2rem" }}>{objectCount}</span>
+        </div>
         {loading && (
           <div
             className="text-center px-4 py-2 mt-2 rounded-lg"
@@ -173,6 +181,42 @@ export function UploadForm() {
             Loading...
           </div>
         )}
+      </div>
+      <div className="mt-4 overflow-y-auto max-h-[calc(100vh-400px)] border border-blue-400 p-4 rounded-lg bg-gray-800 w-full">
+        {/* Header Row */}
+        <div className="flex justify-between items-center mb-2 text-white font-bold">
+          <span className="w-2/5">Name</span>
+          <span className="w-1/5 text-center">Size</span>
+          <span className="w-1/3 text-right"></span>
+        </div>
+        {/* File List */}
+        <ul>
+          {fileList.map((file, index) => (
+            <li
+              key={index}
+              className="flex justify-between items-center mb-2 text-white"
+            >
+              {/* File Name Column */}
+              <span
+                className="w-2/5 truncate"
+                title={file.name} // Show full name on hover
+              >
+                {file.name}
+              </span>
+
+              {/* File Size Column */}
+              <span className="w-1/5 text-center">{file.size} MB</span>
+
+              {/* Download Button Column */}
+              <button
+                onClick={() => handleDownload(file.name)}
+                className="w-1/3 py-1 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded"
+              >
+                Download
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

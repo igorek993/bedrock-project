@@ -1,8 +1,19 @@
 "use server";
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import parse from "html-react-parser";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
+
+export async function authExample() {
+  try {
+    const session = await getServerSession(authOptions);
+    console.log(session);
+    return { status: "success", message: "" };
+  } catch (error) {
+    return { status: "error", message: "Error" };
+  }
+}
 
 import {
   S3Client,
@@ -71,7 +82,7 @@ export async function syncFiles() {
   }
 }
 
-export async function getNumberOfFiles() {
+export async function listFiles() {
   try {
     const command = new ListObjectsV2Command({
       Bucket: process.env.S3_BUCKET_NAME,
@@ -79,41 +90,50 @@ export async function getNumberOfFiles() {
 
     const response = await clientS3.send(command);
 
-    // Count the objects in the bucket (if any exist)
-    const objectCount = response.Contents ? response.Contents.length : 0;
+    if (!response.Contents) {
+      return {
+        status: "success",
+        fileCount: 0,
+        files: [],
+      };
+    }
+
+    // Map the list of objects to include name and size in MB
+    const files = response.Contents.map((item) => ({
+      name: item.Key, // File name
+      size: (item.Size / (1024 * 1024)).toFixed(2), // File size in MB, formatted to 2 decimal places
+    }));
 
     return {
       status: "success",
-      message: `The bucket contains ${objectCount} file(s).`,
-      fileCount: objectCount, // Return the count explicitly
+      fileCount: files.length, // Return the count explicitly
+      files,
     };
   } catch (error) {
-    console.error("Error getting number of files:", error);
+    console.error("Error listing files from S3:", error);
     return {
       status: "error",
-      message: "Error fetching the number of files from the bucket.",
+      message: "Error listing files from S3",
     };
   }
 }
 
-async function generatePresignedDownloadUrl(bucketName, key) {
+export async function generatePresignedDownloadUrl(key) {
   try {
-    // Log the input for debugging purposes
-    // console.log(
-    //   "Generating presigned URL for bucket:",
-    //   bucketName,
-    //   "key:",
-    //   key
-    // );
+    // console.log(key);
 
     // Create a GetObjectCommand
-    const command = new GetObjectCommand({ Bucket: bucketName, Key: key });
+    const command = new GetObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key,
+    });
 
     // Generate a presigned URL valid for 60 minutes
     const presignedUrl = await getSignedUrl(clientS3, command, {
       expiresIn: 3600,
     });
 
+    // console.log(presignedUrl);
     return presignedUrl;
   } catch (error) {
     console.error("Error generating presigned download URL:", error);
@@ -159,10 +179,7 @@ export async function generateReferences(initialResponse) {
           const documentName = getS3DocumentName(
             reference.location.s3Location.uri
           );
-          const downloadUrl = await generatePresignedDownloadUrl(
-            process.env.S3_BUCKET_NAME,
-            documentName
-          );
+          const downloadUrl = await generatePresignedDownloadUrl(documentName);
           reference = getReferenceHover(
             citationCount,
             body,
