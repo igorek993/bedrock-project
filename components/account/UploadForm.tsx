@@ -30,8 +30,44 @@ export function UploadForm() {
   }
 
   async function handleDelete(fileName) {
-    const url = await deleteFile(fileName);
-    //remove the file from the list
+    try {
+      // Update the file's processing state
+      const updatedFileList = fileList.map((file) =>
+        file.name === fileName ? { ...file, isProcessing: true } : file
+      );
+      setFileList(updatedFileList);
+
+      // Call the delete API
+      const response = await deleteFile(fileName);
+      if (response.status === "success") {
+        // Add a fade-out effect before removing the file
+        const updatedFileListWithAnimation = fileList.map((file) =>
+          file.name === fileName ? { ...file, isDeleting: true } : file
+        );
+        setFileList(updatedFileListWithAnimation);
+
+        // Wait for the animation to complete before updating the state
+        setTimeout(() => {
+          setFileList((prev) => prev.filter((file) => file.name !== fileName));
+        }, 300);
+      } else {
+        console.error(`Failed to delete file: ${response.message}`);
+        // Reset the processing state if delete fails
+        setFileList((prev) =>
+          prev.map((file) =>
+            file.name === fileName ? { ...file, isProcessing: false } : file
+          )
+        );
+      }
+    } catch (error) {
+      console.error("An error occurred while deleting the file:", error);
+      // Reset the processing state in case of an error
+      setFileList((prev) =>
+        prev.map((file) =>
+          file.name === fileName ? { ...file, isProcessing: false } : file
+        )
+      );
+    }
   }
 
   async function localSyncFiles() {
@@ -188,81 +224,107 @@ export function UploadForm() {
           </div>
         )}
       </div>
-      <div className="mt-4 overflow-y-auto max-h-[calc(100vh-400px)] border border-blue-400 p-4 rounded-lg bg-gray-800 w-full">
-        {/* Header Row */}
-        <div className="flex justify-between items-center mb-2 text-white font-bold">
-          <span className="w-2/5">Name</span>
-          <span className="w-1/5 text-center">Size</span>
-          <span className="w-1/3 text-right"></span>
-        </div>
-        {/* File List */}
-        <ul>
-          {fileList.map((file, index) => (
-            <li
-              key={index}
-              className="flex justify-between items-center mb-2 text-white"
-            >
-              {/* File Name Column */}
-              <span
-                className="w-2/5 truncate"
-                title={file.name} // Show full name on hover
+      {fileList.length != 0 && (
+        <div className="mt-4 overflow-y-auto max-h-[calc(100vh-400px)] border border-blue-400 p-4 rounded-lg bg-gray-800 w-full">
+          {/* Header Row */}
+          <div className="flex justify-between items-center mb-2 text-white font-bold">
+            <span className="w-2/5">Name</span>
+            <span className="w-1/5 text-center">Size</span>
+            <span className="w-1/3 text-right"></span>
+          </div>
+          {/* File List */}
+          <ul>
+            {fileList.map((file, index) => (
+              <li
+                key={index}
+                className="flex justify-between items-center mb-2 text-white"
               >
-                {file.name}
-              </span>
-
-              {/* File Size Column */}
-              <span className="w-1/5 text-center">{file.size} MB</span>
-
-              {/* Action Buttons Column */}
-              <div className="w-1/3 flex justify-end gap-2">
-                {/* Download Button */}
-                <button
-                  onClick={() => handleDownload(file.name)}
-                  className="flex items-center justify-center py-1 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded"
-                  title="Download"
+                {/* File Name Column */}
+                <span
+                  className="w-2/5 truncate"
+                  title={file.name} // Show full name on hover
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                </button>
+                  {file.name}
+                </span>
 
-                {/* Delete Button */}
-                <button
-                  onClick={() => handleDelete(file.name)}
-                  className="flex items-center justify-center py-1 px-3 bg-red-600 hover:bg-red-700 text-white rounded"
-                  title="Delete"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
+                {/* File Size Column */}
+                <span className="w-1/5 text-center">{file.size} MB</span>
+
+                {/* Action Buttons Column */}
+                <div className="w-1/3 flex justify-end gap-2">
+                  {/* Download Button */}
+                  <button
+                    onClick={() => handleDownload(file.name)}
+                    className="flex items-center justify-center py-1 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded"
+                    title="Download"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                  </button>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(file.name)}
+                    disabled={file.isProcessing}
+                    className={`flex items-center justify-center py-1 px-3 rounded ${
+                      file.isProcessing
+                        ? "bg-red-400 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    } text-white`}
+                    title="Delete"
+                  >
+                    {file.isProcessing ? (
+                      // Show a loading spinner while processing
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="animate-spin h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 4.75v4.5m0 6v4.5m6-10.5h4.5m-16.5 0H4.75m15.25 6H19.5m-15.5 0H4.75m6 6v-4.5m0-6V4.75"
+                        />
+                      </svg>
+                    ) : (
+                      // Delete icon
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
