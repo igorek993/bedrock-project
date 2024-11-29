@@ -94,6 +94,7 @@ export function UploadForm() {
       });
       console.log(fileUpload);
     }
+    setFilesSelected(false);
     fetchFileCount();
   }
 
@@ -136,15 +137,11 @@ export function UploadForm() {
         <button
           type="submit"
           disabled={!filesSelected}
-          className={`py-2 px-4 font-bold rounded-lg ${
+          className={`py-2 px-4 font-bold rounded-lg transition-all duration-200 shadow ${
             filesSelected
               ? "bg-blue-700 hover:bg-blue-800 text-white"
               : "bg-gray-500 text-gray-300 cursor-not-allowed"
           }`}
-          style={{
-            transition: "all 0.2s ease-in-out",
-            boxShadow: "0px 2px 12px rgba(0, 0, 0, 0.2)",
-          }}
         >
           Upload
         </button>
