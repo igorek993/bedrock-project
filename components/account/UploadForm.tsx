@@ -106,15 +106,7 @@ export function UploadForm() {
   }, []);
 
   return (
-    <div
-      className="max-w-lg mx-auto p-6 rounded-lg shadow"
-      style={{
-        background: "linear-gradient(145deg, #000000, #003366)",
-        border: "2px solid #64b5f6",
-        color: "white",
-        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",
-      }}
-    >
+    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -141,15 +133,7 @@ export function UploadForm() {
             onChange={handleFileChange}
             className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
           />
-          <div
-            className="w-full py-2 px-4 text-center rounded-lg"
-            style={{
-              background: "#2a2a2a",
-              border: "2px solid #1976d2",
-              color: "#ffffff",
-              fontWeight: "bold",
-            }}
-          >
+          <div className="w-full py-2 px-4 text-center rounded-lg bg-gray-800 border-2 border-blue-700 text-white font-bold hover:bg-blue-700 hover:border-blue-800 hover:text-gray-100">
             Choose Files
           </div>
         </div>
