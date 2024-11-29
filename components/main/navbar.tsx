@@ -78,20 +78,6 @@ export default function Navbar() {
               "aria-labelledby": "basic-button",
             }}
           >
-            <Link href="/instruction-android" passHref>
-              <MenuItem onClick={handleClose} className="flex items-center">
-                <PhoneIphoneRoundedIcon className="mr-2" />
-                Android
-              </MenuItem>
-            </Link>
-            <Divider />
-            <Link href="/instruction-ios" passHref>
-              <MenuItem onClick={handleClose} className="flex items-center">
-                <PhoneAndroidRoundedIcon className="mr-2" />
-                iPhone
-              </MenuItem>
-            </Link>
-            <Divider />
             <Link href="/account" passHref>
               <MenuItem onClick={handleClose} className="flex items-center">
                 <HomeIcon className="mr-2" />
