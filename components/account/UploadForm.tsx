@@ -12,8 +12,10 @@ export function UploadForm() {
   const [objectCount, setObjectCount] = useState();
   const [filesSynced, setFilesSynced] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [filesUploading, setFilesUploading] = useState(false);
   const [filesSelected, setFilesSelected] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const [numberOfSelectedFiles, setNumberOfSelectedFiles] = useState(0);
 
   async function fetchFileCount() {
     const response = await listFiles();
@@ -85,6 +87,7 @@ export function UploadForm() {
 
   async function uploadFiles(formData) {
     if (!formData.getAll("files")[0]?.name) return;
+    setFilesUploading(true);
     const files = formData.getAll("files");
     for (const file of files) {
       const presignedUrl = await getPresignedUrlUpload(file);
@@ -94,6 +97,7 @@ export function UploadForm() {
       });
       console.log(fileUpload);
     }
+    setFilesUploading(false);
     setFilesSelected(false);
     fetchFileCount();
   }
@@ -101,6 +105,7 @@ export function UploadForm() {
   function handleFileChange(event) {
     const files = event.target.files;
     setFilesSelected(files.length > 0);
+    setNumberOfSelectedFiles(files.length);
   }
 
   useEffect(() => {
@@ -108,7 +113,7 @@ export function UploadForm() {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white">
+    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-screen max-h-screen w-[500px]">
       <Typography variant="h6" color="#ffffff" fontWeight="bold">
         Files management
       </Typography>
@@ -123,7 +128,9 @@ export function UploadForm() {
           htmlFor="files"
           className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 font-sans rounded-md cursor-pointer mt-4 block mb-5"
         >
-          Select Files to Upload
+          {!filesSelected
+            ? "Select Files to Upload"
+            : `${numberOfSelectedFiles} files to upload`}
         </label>
         <input
           type="file"
@@ -136,14 +143,37 @@ export function UploadForm() {
         />
         <button
           type="submit"
-          disabled={!filesSelected}
+          disabled={!filesSelected || filesUploading}
           className={`py-2 px-4 font-bold rounded-lg transition-all duration-200 shadow ${
             filesSelected
               ? "bg-blue-700 hover:bg-blue-800 text-white"
               : "bg-gray-500 text-gray-300 cursor-not-allowed"
           }`}
         >
-          Upload
+          {filesUploading ? (
+            <svg
+              className="animate-spin h-5 w-7 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+          ) : (
+            "Upload"
+          )}
         </button>
       </form>
       <div className="flex flex-col space-y-2 mt-4 items-center">
