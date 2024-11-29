@@ -6,6 +6,7 @@ import {
   deleteFile,
 } from "@/serverFunctions/account/account";
 import { useState, useEffect } from "react";
+import { Typography } from "@mui/material";
 
 export function UploadForm() {
   const [objectCount, setObjectCount] = useState();
@@ -107,36 +108,31 @@ export function UploadForm() {
 
   return (
     <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white">
+      <Typography variant="h6" color="#ffffff" fontWeight="bold">
+        Files management
+      </Typography>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.target);
           uploadFiles(formData);
         }}
-        className="flex flex-col space-y-4"
-        style={{ fontFamily: "Arial, sans-serif" }}
       >
         <label
           htmlFor="files"
-          className="text-lg font-medium"
-          style={{ color: "#ffffff" }}
+          className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 font-sans rounded-md cursor-pointer mt-4 block mb-5"
         >
           Select Files to Upload
         </label>
-        <div className="relative">
-          <input
-            type="file"
-            id="files"
-            name="files"
-            accept="*"
-            multiple
-            onChange={handleFileChange}
-            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-          />
-          <div className="w-full py-2 px-4 text-center rounded-lg bg-gray-800 border-2 border-blue-700 text-white font-bold hover:bg-blue-700 hover:border-blue-800 hover:text-gray-100">
-            Choose Files
-          </div>
-        </div>
+        <input
+          type="file"
+          id="files"
+          name="files"
+          accept="*"
+          multiple
+          onChange={handleFileChange}
+          className="hidden"
+        />
         <button
           type="submit"
           disabled={!filesSelected}
