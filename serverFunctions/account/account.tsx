@@ -267,6 +267,8 @@ export async function deleteFile(fileName) {
 export async function sampleFunction() {
   try {
     console.log("HERE,HERE,HERE,HERE,HERE,HERE,HERE,HERE");
+    console.log(process.env.S3_BUCKET_NAME);
+    console.log("HERE,HERE,HERE,HERE,HERE,HERE,HERE,HERE");
     return { status: "success", message: "" };
   } catch (error) {
     return { status: "error", message: "Error" };
