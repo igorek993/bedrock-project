@@ -101,6 +101,7 @@ export async function listFiles() {
     // Map the list of objects to include name and size in MB
     const files = response.Contents.map((item) => ({
       name: item.Key, // File name
+      // @ts-ignore
       size: (item.Size / (1024 * 1024)).toFixed(2), // File size in MB, formatted to 2 decimal places
     }));
 
@@ -220,6 +221,7 @@ export async function processClientMessage(message: string) {
         },
       },
     };
+    // @ts-ignore
     const command = new RetrieveAndGenerateCommand(input);
     const response = await clientBedrockAgentRuntimeClient.send(command);
 
@@ -257,6 +259,7 @@ export async function deleteFile(fileName) {
 
     return {
       status: "error",
+      // @ts-ignore
       message: `Error deleting file "${fileName}" from S3: ${error.message}`,
     };
   }

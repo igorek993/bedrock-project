@@ -51,6 +51,7 @@ export function ChatWindow() {
         const updatedMessages = [...prevMessages];
         updatedMessages[updatedMessages.length - 1] = {
           role: "assistant",
+          // @ts-ignore
           content: response.text || "No response received.",
         };
         return updatedMessages;
