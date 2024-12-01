@@ -1,13 +1,13 @@
-import { getNumberOfFiles } from "@/serverFunctions/account/account";
+// import { getNumberOfFiles } from "@/serverFunctions/account/account";
 
-export function sampleFunction() {
-  async function sampleFunction() {
-    return "Bla";
-  }
+// export function sampleFunction() {
+//   async function sampleFunction() {
+//     return "Bla";
+//   }
 
-  return (
-    <div>
-      <h1>Bla</h1>
-    </div>
-  );
-}
+//   return (
+//     <div>
+//       <h1>Bla</h1>
+//     </div>
+//   );
+// }

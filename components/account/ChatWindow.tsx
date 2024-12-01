@@ -138,11 +138,11 @@ export function ChatWindow() {
             alignItems="center"
             boxShadow="0px 4px 12px rgba(0, 0, 0, 0.3)"
           >
-            <img
+            {/* <img
               src="/crescentcloudlogo.png"
               alt="Logo"
               style={{ width: "100px" }}
-            />{" "}
+            />{" "} */}
             {/* Adjusted size */}
           </Box>
         </Box>
