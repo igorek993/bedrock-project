@@ -62,3 +62,18 @@ resource "aws_bedrockagent_data_source" "project_fufel" {
     }
   }
 }
+
+resource "aws_dynamodb_table_item" "user_info" {
+  for_each = tomap({ for idx, email in var.user_emails : idx => email })
+
+  table_name = aws_dynamodb_table.project_fufel_user_info.name
+  hash_key   = aws_dynamodb_table.project_fufel_user_info.hash_key
+
+  item = <<ITEM
+{
+  "Email": {"S": "${each.value}"},
+  "KnowledgeBaseId": {"S": "${aws_bedrockagent_knowledge_base.project_fufel[each.key].id}"},
+  "DataSourceId": {"S": "${aws_bedrockagent_data_source.project_fufel[each.key].data_source_id}"}
+}
+ITEM
+}
