@@ -31,6 +31,20 @@ resource "aws_amplify_app" "project_fufel" {
     target = "/index.html"
 
   }
+
+  environment_variables = {
+    COGNITO_ISSUER        = "placeholder"
+    COGNITO_CLIENT_SECRET = "placeholder"
+    COGNITO_CLIENT_ID     = "placeholder"
+    NEXTAUTH_SECRET       = "placeholder"
+    S3_BUCKET_NAME        = "placeholder"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      environment_variables
+    ]
+  }
 }
 
 resource "aws_iam_policy" "project_fufel_logging_policy" {

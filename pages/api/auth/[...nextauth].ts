@@ -3,7 +3,7 @@ import CognitoProvider from "next-auth/providers/cognito";
 import { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   // Configure one or more authentication providers
   providers: [
     CognitoProvider({
