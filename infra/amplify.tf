@@ -14,6 +14,11 @@ resource "aws_amplify_app" "project_fufel" {
             - npm ci --cache .npm --prefer-offline --force
         build:
           commands:
+            - echo "COGNITO_ISSUER=$COGNITO_ISSUER" >> .env
+            - echo "COGNITO_CLIENT_SECRET=$COGNITO_CLIENT_SECRET" >> .env
+            - echo "COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID" >> .env
+            - echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env
+            - echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> .env
             - npm run build
       artifacts:
         baseDirectory: .next
