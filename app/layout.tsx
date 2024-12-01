@@ -3,7 +3,6 @@ import Navbar from "@/components/main/navbar";
 import Footer from "@/components/main/footer";
 import { Metadata } from "next";
 import { Inter, Inconsolata, Roboto } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import Providers from "./providers";
 
@@ -31,7 +30,6 @@ export default function RootLayout({
             <div className="mx-auto flex-grow">{children}</div>
             <Footer />
           </main>
-          <SpeedInsights />
           <Analytics />
         </Providers>
       </body>
