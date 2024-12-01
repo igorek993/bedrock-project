@@ -31,7 +31,6 @@ import {
   BedrockAgentRuntimeClient,
   RetrieveAndGenerateCommand,
 } from "@aws-sdk/client-bedrock-agent-runtime";
-import { init } from "next/dist/compiled/webpack/webpack";
 
 const clientS3 = new S3Client({
   region: process.env.AWS_REGION,
