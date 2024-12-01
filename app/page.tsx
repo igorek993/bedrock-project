@@ -1,8 +1,5 @@
 "use client";
 
-import FeatureMain from "@/components/main/feature";
-import { sampleFunction } from "@/serverFunctions/account/account";
-
 function HomePage() {
   return (
     <div>
@@ -11,7 +8,6 @@ function HomePage() {
           bedrock-project
         </h1>
       </div>
-      <button onClick={sampleFunction}>TEST</button>
     </div>
   );
 }
