@@ -27,7 +27,7 @@ async function Account() {
           </div>
         </>
       )}
-      {!status && (
+      {!userId && (
         <div className="absolute top-[40vh] w-full flex justify-center">
           <LoginButton />
         </div>
