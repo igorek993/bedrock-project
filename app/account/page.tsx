@@ -1,18 +1,19 @@
 "use client";
+
 import LoginButton from "@/components/main/LoginButton";
-import { useSession } from "next-auth/react";
 import { UploadForm } from "@/components/account/UploadForm";
 import { ChatWindow } from "@/components/account/ChatWindow";
+import { useAuth } from "@clerk/nextjs";
 
-function Account() {
-  const { data: session, status } = useSession();
+async function Account() {
+  const { isLoaded, userId, sessionId, getToken } = useAuth();
 
   return (
     <div className="flex flex-col items-center justify-center text-center">
-      {session && session.user && (
+      {userId && (
         <>
           <h1 className="mb-10 text-xl font-bold">
-            Добро пожаловать в ваш личный кабинет, {session.user.name}!
+            Добро пожаловать в ваш личный кабинет, {userId}!
           </h1>
           <div className="flex flex-row justify-between w-full max-w-6xl">
             {/* ChatWindow on the left */}

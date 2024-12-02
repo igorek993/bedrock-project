@@ -3,7 +3,13 @@ import Navbar from "@/components/main/navbar";
 import Footer from "@/components/main/footer";
 import { Metadata } from "next";
 import { Inter, Inconsolata, Roboto } from "next/font/google";
-import Providers from "./providers";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"] });
 const inconsolata = Inconsolata({ subsets: ["latin"] });
@@ -21,16 +27,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className="bg-sky-50">
-      <body className={roboto.className}>
-        <Providers>
+    <ClerkProvider>
+      <html lang="ru" className="bg-sky-50">
+        <body className={roboto.className}>
           <main className="mx-auto flex flex-col min-h-screen">
             <Navbar />
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
             <div className="mx-auto flex-grow">{children}</div>
             <Footer />
           </main>
-        </Providers>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
