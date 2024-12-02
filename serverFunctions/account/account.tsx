@@ -3,16 +3,18 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import parse from "html-react-parser";
 import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
-// export async function authExample() {
-//   try {
-//     const session = await getServerSession(authOptions);
-//     console.log(session);
-//     return { status: "success", message: "" };
-//   } catch (error) {
-//     return { status: "error", message: "Error" };
-//   }
-// }
+export async function authExample() {
+  try {
+    const user = await currentUser();
+    console.log(user?.emailAddresses[0].emailAddress);
+    console.log(user?.firstName);
+    return { status: "success", message: "" };
+  } catch (error) {
+    return { status: "error", message: "Error" };
+  }
+}
 
 import {
   S3Client,

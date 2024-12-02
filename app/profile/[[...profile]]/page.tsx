@@ -1,22 +1,24 @@
-// import { UserProfile } from "@clerk/nextjs";
-// import { redirect } from "next/navigation";
-// import React from "react";
-// import { auth, currentUser } from "@clerk/nextjs/server";
+"use client";
 
-// const Profile = async () => {
-//   const { userId } = auth();
-//   const user = await currentUser();
+import { UserProfile } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import React from "react";
+import { useAuth, useUser } from "@clerk/nextjs";
 
-//   if (!userId) {
-//     redirect("/");
-//   }
+const Profile = async () => {
+  const { userId } = useAuth();
+  const { user } = useUser();
 
-//   return (
-//     <div className="flex flex-col items-center justify-center mt-8">
-//       <h1 className="text-2xl">{user?.username}</h1>
-//       <UserProfile />
-//     </div>
-//   );
-// };
+  if (!userId) {
+    redirect("/");
+  }
 
-// export default Profile;
+  return (
+    <div className="flex flex-col items-center justify-center mt-8">
+      <h1 className="text-2xl">{user?.username}</h1>
+      <UserProfile />
+    </div>
+  );
+};
+
+export default Profile;

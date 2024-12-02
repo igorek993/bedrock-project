@@ -1,16 +1,8 @@
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
 
 const Navbar = () => {
-  const { userId } = auth();
   return (
     <div className="bg-gray-400 rounded-b-xl">
       <ul className="flex justify-between py-4 px-6">
@@ -20,8 +12,11 @@ const Navbar = () => {
           </Link>
         </div>
         <div className="flex items-center">
-          <Link href="/account">
-            <li>Account</li>
+          <Link href="/chat">
+            <li>Chat</li>
+          </Link>
+          <Link className="ml-12" href="/file-management">
+            <li>File management</li>
           </Link>
         </div>
         <div className="flex gap-6 items-center">
