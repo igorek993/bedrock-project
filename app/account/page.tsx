@@ -1,6 +1,5 @@
 "use client";
 
-import LoginButton from "@/components/main/LoginButton";
 import { UploadForm } from "@/components/account/UploadForm";
 import { ChatWindow } from "@/components/account/ChatWindow";
 import { useAuth } from "@clerk/nextjs";

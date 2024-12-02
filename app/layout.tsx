@@ -1,24 +1,20 @@
 import "./globals.css";
-import Navbar from "@/components/main/navbar";
-import Footer from "@/components/main/footer";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import Spinner from "@/components/layout/loading";
 import { Metadata } from "next";
 import { Inter, Inconsolata, Roboto } from "next/font/google";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
 const inter = Inter({ subsets: ["latin"] });
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 const roboto = Roboto({ subsets: ["latin"], weight: ["400"] });
 
 export const metadata: Metadata = {
-  title: "bedrock-project",
-  description: "bedrock-project",
-  keywords: "bedrock-project",
+  title: "project-fufel",
+  description: "project-fufel",
+  keywords: "project-fufel",
 };
 
 export default function RootLayout({
@@ -27,20 +23,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="ru" className="bg-sky-50">
-        <body className={roboto.className}>
-          <main className="mx-auto flex flex-col min-h-screen">
-            <Navbar />
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <div className="mx-auto flex-grow">{children}</div>
-            <Footer />
-          </main>
+    <ClerkProvider appearance={{ baseTheme: dark }}>
+      <html lang="en">
+        <body className={inter.className}>
+          <ClerkLoading>
+            <div className="flex items-center justify-center h-screen text-2xl">
+              <Spinner />
+            </div>
+          </ClerkLoading>
+          <ClerkLoaded>
+            <div>
+              <Navbar />
+              {children}
+              <Footer />
+            </div>
+          </ClerkLoaded>
         </body>
       </html>
     </ClerkProvider>

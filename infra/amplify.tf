@@ -14,7 +14,7 @@ resource "aws_amplify_app" "project_fufel" {
             - npm ci --cache .npm --prefer-offline --force
         build:
           commands:
-            - env | grep - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY -e CLERK_SECRET_KEY -e COGNITO_ISSUER -e COGNITO_CLIENT_SECRET -e COGNITO_CLIENT_ID -e NEXTAUTH_SECRET -e S3_BUCKET_NAME -e NEXTAUTH_URL >> .env
+            - env | grep -e NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY -e CLERK_SECRET_KEY -e S3_BUCKET_NAME >> .env
             - npm run build
       artifacts:
         baseDirectory: .next
@@ -34,12 +34,9 @@ resource "aws_amplify_app" "project_fufel" {
   }
 
   environment_variables = {
-    COGNITO_ISSUER        = "placeholder"
-    COGNITO_CLIENT_SECRET = "placeholder"
-    COGNITO_CLIENT_ID     = "placeholder"
-    NEXTAUTH_SECRET       = "placeholder"
-    S3_BUCKET_NAME        = "placeholder"
-    NEXTAUTH_URL          = "placeholder"
+    S3_BUCKET_NAME                    = "placeholder"
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "placeholder"
+    CLERK_SECRET_KEY                  = "placeholder"
   }
 
   lifecycle {
