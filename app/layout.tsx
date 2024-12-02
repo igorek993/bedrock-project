@@ -25,18 +25,16 @@ export default function RootLayout({
   return (
     <ClerkProvider appearance={{ baseTheme: dark }}>
       <html lang="en">
-        <body className={inter.className}>
+        <body className={`${inter.className} flex flex-col min-h-screen`}>
           <ClerkLoading>
             <div className="flex items-center justify-center h-screen text-2xl">
               <Spinner />
             </div>
           </ClerkLoading>
           <ClerkLoaded>
-            <div>
-              <Navbar />
-              {children}
-              <Footer />
-            </div>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
           </ClerkLoaded>
         </body>
       </html>
