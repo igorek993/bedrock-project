@@ -127,9 +127,6 @@ export function UploadForm() {
 
   return (
     <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-screen max-h-screen w-[500px]">
-      <Typography variant="h6" color="#ffffff" fontWeight="bold">
-        Files management
-      </Typography>
       <form
         onSubmit={(e) => {
           e.preventDefault();

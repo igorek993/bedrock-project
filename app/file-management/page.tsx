@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 
 function Account() {
   const { isLoaded, userId, sessionId, getToken } = useAuth();
-  const { user } = useUser();
 
   if (!userId) {
     redirect("/sign-in");
