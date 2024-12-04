@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import React from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 
-const Profile = async () => {
+const Profile = () => {
   const { userId } = useAuth();
   const { user } = useUser();
 

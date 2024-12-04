@@ -5,17 +5,6 @@ import parse from "html-react-parser";
 import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { auth, currentUser } from "@clerk/nextjs/server";
 
-export async function authExample() {
-  try {
-    const user = await currentUser();
-    console.log(user?.emailAddresses[0].emailAddress);
-    console.log(user?.firstName);
-    return { status: "success", message: "" };
-  } catch (error) {
-    return { status: "error", message: "Error" };
-  }
-}
-
 import {
   S3Client,
   PutObjectCommand,
@@ -46,14 +35,32 @@ const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
   region: process.env.AWS_REGION,
 });
 
+export async function authExample() {
+  try {
+    const user = await currentUser();
+    console.log(user?.emailAddresses[0].emailAddress);
+    console.log(user?.firstName);
+    return { status: "success", message: "" };
+  } catch (error) {
+    return { status: "error", message: "Error" };
+  }
+}
+
 export async function getPresignedUrlUpload(file) {
   try {
+    const user = await currentUser();
+    if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+      throw new Error("Unable to retrieve user email address");
+    }
+
+    const userId = user.id;
+
     const fileType = file["type"];
     const fileName = file["name"];
 
     const command = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME,
-      Key: fileName,
+      Key: `${userId}/${fileName}`,
       ContentType: fileType,
     });
 
@@ -85,8 +92,16 @@ export async function syncFiles() {
 
 export async function listFiles() {
   try {
+    const user = await currentUser();
+    if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+      throw new Error("Unable to retrieve user email address");
+    }
+
+    const userId = user.id;
+
     const command = new ListObjectsV2Command({
       Bucket: process.env.S3_BUCKET_NAME,
+      Prefix: userId,
     });
 
     const response = await clientS3.send(command);
@@ -99,10 +114,9 @@ export async function listFiles() {
       };
     }
 
-    // Map the list of objects to include name and size in MB
+    // Map the list of objects to include name (without user email prefix) and size in MB
     const files = response.Contents.map((item) => ({
-      name: item.Key, // File name
-      // @ts-ignore
+      name: item.Key.replace(`${userId}/`, ""), // Remove the user's email prefix
       size: (item.Size / (1024 * 1024)).toFixed(2), // File size in MB, formatted to 2 decimal places
     }));
 
@@ -122,12 +136,17 @@ export async function listFiles() {
 
 export async function generatePresignedDownloadUrl(key) {
   try {
-    // console.log(key);
+    const user = await currentUser();
+    if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+      throw new Error("Unable to retrieve user email address");
+    }
+
+    const userId = user.id;
 
     // Create a GetObjectCommand
     const command = new GetObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME,
-      Key: key,
+      Key: `${userId}/${key}`,
     });
 
     // Generate a presigned URL valid for 60 minutes
@@ -242,14 +261,21 @@ export async function processClientMessage(message: string) {
 
 export async function deleteFile(fileName) {
   try {
+    const user = await currentUser();
+    if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+      throw new Error("Unable to retrieve user email address");
+    }
+
+    const userId = user.id;
+
     // Define the command to delete the file
     const command = new DeleteObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME, // The S3 bucket name
-      Key: fileName, // The file name (object key)
+      Key: `${userId}/${fileName}`, // The file name (object key)
     });
 
     // Send the command to S3
-    await clientS3.send(command);
+    const response = await clientS3.send(command);
 
     return {
       status: "success",

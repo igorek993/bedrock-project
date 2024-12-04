@@ -4,7 +4,7 @@ const nextConfig = {
   trailingSlash: true,
   experimental: {
     serverActions: {
-      bodySizeLimit: "15mb",
+      bodySizeLimit: "45mb",
     },
   },
 };

@@ -6,12 +6,12 @@ import {
   deleteFile,
 } from "@/serverFunctions/account/account";
 import { useState, useEffect } from "react";
-import { Typography } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export function UploadForm() {
   const [objectCount, setObjectCount] = useState();
   const [filesSynced, setFilesSynced] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [filesUploading, setFilesUploading] = useState(false);
   const [filesSelected, setFilesSelected] = useState(false);
   const [fileList, setFileList] = useState([]);
@@ -61,7 +61,7 @@ export function UploadForm() {
         setTimeout(() => {
           // @ts-ignore
           setFileList((prev) => prev.filter((file) => file.name !== fileName));
-        }, 300);
+        }, 100);
       } else {
         console.error(`Failed to delete file: ${response.message}`);
         // Reset the processing state if delete fails
@@ -87,14 +87,14 @@ export function UploadForm() {
   }
 
   async function localSyncFiles() {
-    setLoading(true);
+    // setLoading(true);
     const response = await syncFiles();
     if (response.status === "success") {
       setFilesSynced(true);
-      setLoading(false);
+      // setLoading(false);
     } else {
       setFilesSynced(false);
-      setLoading(false);
+      // setLoading(false);
     }
   }
 
@@ -126,7 +126,7 @@ export function UploadForm() {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-screen max-h-screen w-[500px]">
+    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-screen max-h-screen">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -147,7 +147,7 @@ export function UploadForm() {
           type="file"
           id="files"
           name="files"
-          accept="*"
+          accept=".txt,.md,.html,.doc,.docx,.csv,.xls,.xlsx,.pdf"
           multiple
           onChange={handleFileChange}
           className="hidden"
@@ -187,33 +187,20 @@ export function UploadForm() {
           )}
         </button>
       </form>
-      <div className="flex flex-col space-y-2 mt-4 items-center">
-        {filesSynced && (
-          <div
-            className="text-center px-4 py-2 mt-2 rounded-lg"
-            style={{
-              background: "rgba(0, 200, 83, 0.1)",
-              border: "2px solid #66bb6a",
-              color: "#81c784",
-              fontWeight: "bold",
-              fontSize: "1.1rem",
-            }}
-          >
-            Files are in sync
+      {/* Files sync UI logic */}
+      <div className="">
+        {fileList.length == 0 && (
+          <div className="flex items-center justify-center m-8">
+            No files in the database yet, try to upload your first file!
           </div>
         )}
-        {!filesSynced && !loading && (
-          <button
-            onClick={localSyncFiles}
-            className="py-2 px-4 font-bold rounded-lg bg-blue-700 hover:bg-blue-800 text-white"
-            style={{
-              transition: "all 0.2s ease-in-out",
-              boxShadow: "0px 2px 12px rgba(0, 0, 0, 0.2)",
-            }}
-          >
-            Sync Files
-          </button>
+        {!filesSynced && fileList.length >= 1 && (
+          <div className="flex items-center justify-center m-8">
+            Processing files
+            <CircularProgress className="ml-5" color="success" />
+          </div>
         )}
+        {filesSynced && fileList.length >= 1 && <div>Files are in sync</div>}
         <div
           className="text-center px-4 py-2 rounded-lg"
           style={{
@@ -224,23 +211,9 @@ export function UploadForm() {
             fontSize: "1.1rem",
           }}
         >
-          Current files count:{" "}
+          Current files count:
           <span style={{ fontSize: "1.2rem" }}>{objectCount}</span>
         </div>
-        {loading && (
-          <div
-            className="text-center px-4 py-2 mt-2 rounded-lg"
-            style={{
-              background: "rgba(255, 193, 7, 0.1)",
-              border: "2px solid #ffb300",
-              color: "#ffca28",
-              fontWeight: "bold",
-              fontSize: "1.1rem",
-            }}
-          >
-            Loading...
-          </div>
-        )}
       </div>
       {fileList.length != 0 && (
         <div className="mt-4 overflow-y-auto max-h-[calc(100vh-400px)] border border-blue-400 p-4 rounded-lg bg-gray-800 w-full">

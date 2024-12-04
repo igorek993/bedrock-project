@@ -1,4 +1,4 @@
-variable "user_emails" {
+variable "user_ids" {
   type    = list(any)
-  default = ["igorek993@gmail.com", "elenakhlebnikova94@gmail.com"]
+  default = ["user_2pe2Gzy2xnwd9kT3rpirWdFQzQH"]
 }
