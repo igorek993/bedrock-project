@@ -4,16 +4,17 @@ import {
   syncFiles,
   generatePresignedDownloadUrl,
   deleteFile,
+  checkSyncFilesStatus,
 } from "@/serverFunctions/account/account";
 import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 
 export function UploadForm() {
   const [objectCount, setObjectCount] = useState();
-  const [filesSynced, setFilesSynced] = useState(false);
-  // const [loading, setLoading] = useState(false);
+  const [filesSyncedStatus, setFilesSyncedStatus] = useState("");
   const [filesUploading, setFilesUploading] = useState(false);
   const [filesSelected, setFilesSelected] = useState(false);
+  const [failedToSyncFilesStatus, setFailedToSyncFilesStatus] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [numberOfSelectedFiles, setNumberOfSelectedFiles] = useState(0);
 
@@ -62,17 +63,10 @@ export function UploadForm() {
           // @ts-ignore
           setFileList((prev) => prev.filter((file) => file.name !== fileName));
         }, 100);
-      } else {
-        console.error(`Failed to delete file: ${response.message}`);
-        // Reset the processing state if delete fails
-        // @ts-ignore
-        setFileList((prev) =>
-          prev.map((file) =>
-            // @ts-ignore
-            file.name === fileName ? { ...file, isProcessing: false } : file
-          )
-        );
       }
+      syncFiles();
+      setFilesSyncedStatus("IN_PROGRESS");
+      localCheckSyncFilesStatus();
     } catch (error) {
       console.error("An error occurred while deleting the file:", error);
       // Reset the processing state in case of an error
@@ -86,15 +80,26 @@ export function UploadForm() {
     }
   }
 
-  async function localSyncFiles() {
-    // setLoading(true);
-    const response = await syncFiles();
-    if (response.status === "success") {
-      setFilesSynced(true);
-      // setLoading(false);
-    } else {
-      setFilesSynced(false);
-      // setLoading(false);
+  async function localCheckSyncFilesStatus() {
+    try {
+      const response = await checkSyncFilesStatus();
+
+      setFailedToSyncFilesStatus(response.failedToSyncFilesStatus);
+
+      if (response.status === "COMPLETE") {
+        setFilesSyncedStatus(response.status);
+      } else if (response.status === "FAILED") {
+        setFilesSyncedStatus(response.status);
+      } else {
+        setFilesSyncedStatus("IN_PROGRESS");
+
+        // Retry after 5 seconds
+        setTimeout(() => {
+          localCheckSyncFilesStatus();
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Error checking file sync status:", error);
     }
   }
 
@@ -113,6 +118,9 @@ export function UploadForm() {
     setFilesUploading(false);
     setFilesSelected(false);
     fetchFileCount();
+    syncFiles();
+    setFilesSyncedStatus("IN_PROGRESS");
+    localCheckSyncFilesStatus();
   }
 
   function handleFileChange(event) {
@@ -123,6 +131,7 @@ export function UploadForm() {
 
   useEffect(() => {
     fetchFileCount();
+    localCheckSyncFilesStatus();
   }, []);
 
   return (
@@ -189,18 +198,27 @@ export function UploadForm() {
       </form>
       {/* Files sync UI logic */}
       <div className="">
-        {fileList.length == 0 && (
+        {objectCount == 0 && (
           <div className="flex items-center justify-center m-8">
             No files in the database yet, try to upload your first file!
           </div>
         )}
-        {!filesSynced && fileList.length >= 1 && (
+        {filesSyncedStatus === "IN_PROGRESS" && fileList.length >= 1 && (
           <div className="flex items-center justify-center m-8">
             Processing files
             <CircularProgress className="ml-5" color="success" />
           </div>
         )}
-        {filesSynced && fileList.length >= 1 && <div>Files are in sync</div>}
+        {filesSyncedStatus === "COMPLETE" &&
+          fileList.length >= 1 &&
+          failedToSyncFilesStatus.length == 0 && <div>Files are in sync</div>}
+        {filesSyncedStatus === "FAILED" && fileList.length >= 1 && (
+          <div>Failed to sync</div>
+        )}
+        {failedToSyncFilesStatus.length > 0 && (
+          <div>Files are partially synced</div>
+        )}
+        {/* End of files sync UI logic */}
         <div
           className="text-center px-4 py-2 rounded-lg"
           style={{
@@ -322,6 +340,7 @@ export function UploadForm() {
           </ul>
         </div>
       )}
+      <button onClick={checkSyncFilesStatus}>TESTTTTTTTTT</button>
     </div>
   );
 }

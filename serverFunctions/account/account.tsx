@@ -4,6 +4,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import parse from "html-react-parser";
 import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 import {
   S3Client,
@@ -14,7 +16,9 @@ import {
 import {
   BedrockAgentClient,
   GetKnowledgeBaseCommand,
+  GetIngestionJobCommand,
   GetDataSourceCommand,
+  ListIngestionJobsCommand,
   StartIngestionJobCommand,
 } from "@aws-sdk/client-bedrock-agent";
 
@@ -35,14 +39,62 @@ const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
   region: process.env.AWS_REGION,
 });
 
+const clientDynamoDB = new DynamoDBClient({});
+const clientDynamoDBDocumentClient =
+  DynamoDBDocumentClient.from(clientDynamoDB);
+
 export async function authExample() {
   try {
     const user = await currentUser();
-    console.log(user?.emailAddresses[0].emailAddress);
-    console.log(user?.firstName);
+    // console.log(user?.emailAddresses[0].emailAddress);
+    // console.log(user?.firstName);
     return { status: "success", message: "" };
   } catch (error) {
     return { status: "error", message: "Error" };
+  }
+}
+
+async function getCurrentUserInfoFromDynamoDb() {
+  try {
+    const user = await currentUser();
+    if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+      throw new Error("Unable to retrieve user email address");
+    }
+    const userId = user.id;
+
+    const TABLE_NAME = process.env.USER_INFO_DYNAMO_DB_TABLE;
+
+    if (!userId) {
+      throw new Error("UserId is required");
+    }
+
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        UserId: userId, // Partition key to retrieve the user
+      },
+    };
+
+    const command = new GetCommand(params);
+    const result = await clientDynamoDBDocumentClient.send(command);
+
+    if (!result.Item) {
+      return {
+        status: "error",
+        message: `User with UserId "${userId}" not found.`,
+      };
+    }
+
+    return {
+      status: "success",
+      data: result.Item,
+    };
+  } catch (error) {
+    console.error("Error retrieving user from DynamoDB:", error);
+    return {
+      status: "error",
+      message: `Failed to retrieve user with UserId: ${error}`,
+    };
   }
 }
 
@@ -74,16 +126,67 @@ export async function getPresignedUrlUpload(file) {
 
 export async function syncFiles() {
   try {
+    const userInfo = await getCurrentUserInfoFromDynamoDb();
+    const userDataSourceId = userInfo.data?.DataSourceId;
+    const userKnowledgeBaseId = userInfo.data?.KnowledgeBaseId;
+
     const command = new StartIngestionJobCommand({
-      knowledgeBaseId: process.env.KNOWLEDGEBASE_ID,
-      dataSourceId: process.env.DATASOURCE_ID,
+      knowledgeBaseId: userKnowledgeBaseId,
+      dataSourceId: userDataSourceId,
     });
 
     const response = await clientBedrockAgentClient.send(command);
 
-    console.log(response);
+    // console.log(response);
 
     return { status: "success", message: "" };
+  } catch (error) {
+    console.log(error);
+    return { status: "error", message: "Error" };
+  }
+}
+
+export async function checkSyncFilesStatus() {
+  try {
+    const userInfo = await getCurrentUserInfoFromDynamoDb();
+    const userDataSourceId = userInfo.data?.DataSourceId;
+    const userKnowledgeBaseId = userInfo.data?.KnowledgeBaseId;
+    let failedToSyncFilesStatus = [];
+
+    const input = {
+      knowledgeBaseId: userKnowledgeBaseId,
+      dataSourceId: userDataSourceId,
+      maxResults: 3,
+      sortBy: {
+        attribute: "STARTED_AT",
+        order: "DESCENDING",
+      },
+    };
+    const command = new ListIngestionJobsCommand(input);
+    const response = await clientBedrockAgentClient.send(command);
+    const status = response.ingestionJobSummaries[0].status;
+    const ingestionJobId = response.ingestionJobSummaries[0].ingestionJobId;
+
+    // Check if there are any failed files and if yes, return the list of failed files and the reason
+    if (
+      response.ingestionJobSummaries[0].statistics?.numberOfDocumentsFailed >= 1
+    ) {
+      const input = {
+        knowledgeBaseId: userKnowledgeBaseId,
+        dataSourceId: userDataSourceId,
+        ingestionJobId: ingestionJobId,
+      };
+      const command = new GetIngestionJobCommand(input);
+      const response = await clientBedrockAgentClient.send(command);
+      failedToSyncFilesStatus = response.ingestionJob?.failureReasons;
+    }
+
+    // console.log({
+    //   status: status,
+    //   failedToSyncFilesStatus: failedToSyncFilesStatus,
+    // });
+
+    return { status: status, failedToSyncFilesStatus: failedToSyncFilesStatus };
   } catch (error) {
     console.log(error);
     return { status: "error", message: "Error" };
@@ -245,9 +348,9 @@ export async function processClientMessage(message: string) {
     const command = new RetrieveAndGenerateCommand(input);
     const response = await clientBedrockAgentRuntimeClient.send(command);
 
-    console.log("received response");
-    const finalHtml = await generateReferences(response);
-    console.log("end");
+    // console.log("received response");
+    // const finalHtml = await generateReferences(response);
+    // console.log("end");
 
     return {
       text: finalHtml,
