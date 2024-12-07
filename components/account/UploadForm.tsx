@@ -14,7 +14,7 @@ export function UploadForm() {
   const [filesSyncedStatus, setFilesSyncedStatus] = useState("");
   const [filesUploading, setFilesUploading] = useState(false);
   const [filesSelected, setFilesSelected] = useState(false);
-  const [failedToSyncFilesStatus, setFailedToSyncFilesStatus] = useState([]);
+  const [failedToSyncFiles, setfailedToSyncFiles] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [numberOfSelectedFiles, setNumberOfSelectedFiles] = useState(0);
 
@@ -84,7 +84,7 @@ export function UploadForm() {
     try {
       const response = await checkSyncFilesStatus();
 
-      setFailedToSyncFilesStatus(response.failedToSyncFiles);
+      setfailedToSyncFiles(response.failedToSyncFiles);
 
       if (response.status === "COMPLETE") {
         setFilesSyncedStatus(response.status);
@@ -247,13 +247,11 @@ export function UploadForm() {
         )}
         {filesSyncedStatus === "COMPLETE" &&
           fileList.length >= 1 &&
-          failedToSyncFilesStatus.length == 0 && <div>Files are in sync</div>}
+          failedToSyncFiles.length == 0 && <div>Files are in sync</div>}
         {filesSyncedStatus === "FAILED" && fileList.length >= 1 && (
           <div>Failed to sync</div>
         )}
-        {failedToSyncFilesStatus.length > 0 && (
-          <div>Files are partially synced</div>
-        )}
+        {failedToSyncFiles.length > 0 && <div>Files are partially synced</div>}
         {/* End of files sync UI logic */}
         <div
           className="text-center px-4 py-2 rounded-lg"
