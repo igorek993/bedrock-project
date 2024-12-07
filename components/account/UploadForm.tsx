@@ -16,6 +16,7 @@ export function UploadForm() {
   const [filesUploading, setFilesUploading] = useState(false);
   const [filesSelected, setFilesSelected] = useState(false);
   const [failedToSyncFiles, setfailedToSyncFiles] = useState([]);
+  const [syncingFiles, setSyncingFiles] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [numberOfSelectedFiles, setNumberOfSelectedFiles] = useState(0);
 
@@ -83,14 +84,17 @@ export function UploadForm() {
 
   async function localCheckSyncFilesStatus() {
     try {
+      setSyncingFiles(true);
       const response = await checkSyncFilesStatus();
-
-      setfailedToSyncFiles(response.failedToSyncFiles);
 
       if (response.status === "COMPLETE") {
         setFilesSyncedStatus(response.status);
+        setfailedToSyncFiles(response.failedToSyncFiles);
+        setSyncingFiles(false);
       } else if (response.status === "FAILED") {
         setFilesSyncedStatus(response.status);
+        setfailedToSyncFiles(response.failedToSyncFiles);
+        setSyncingFiles(false);
       } else {
         setFilesSyncedStatus("IN_PROGRESS");
 
@@ -127,7 +131,7 @@ export function UploadForm() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const maxSize = 10 * 1024 * 1024; // 10 MB
+      const maxSize = 45 * 1024 * 1024; // 10 MB
       const validFiles = [];
       const rejectedFiles = [];
 
@@ -144,7 +148,7 @@ export function UploadForm() {
       if (rejectedFiles.length > 0) {
         console.warn("Rejected Files:", rejectedFiles);
         alert(
-          `The following files were rejected because they exceed the 10 MB size limit:\n` +
+          `The following files were rejected because they exceed the 45 MB size limit:\n` +
             rejectedFiles
               .map(
                 (file) =>
@@ -252,7 +256,9 @@ export function UploadForm() {
         {filesSyncedStatus === "FAILED" && fileList.length >= 1 && (
           <div>Failed to sync</div>
         )}
-        {failedToSyncFiles.length > 0 && <div>Files are partially synced</div>}
+        {failedToSyncFiles.length > 0 && !syncingFiles && (
+          <div>Files are partially synced</div>
+        )}
         {/* End of files sync UI logic */}
         <div
           className="text-center px-4 py-2 rounded-lg"
