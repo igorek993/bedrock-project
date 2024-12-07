@@ -84,7 +84,7 @@ export function UploadForm() {
     try {
       const response = await checkSyncFilesStatus();
 
-      setFailedToSyncFilesStatus(response.failedToSyncFilesStatus);
+      setFailedToSyncFilesStatus(response.failedToSyncFiles);
 
       if (response.status === "COMPLETE") {
         setFilesSyncedStatus(response.status);
@@ -123,11 +123,47 @@ export function UploadForm() {
     localCheckSyncFilesStatus();
   }
 
-  function handleFileChange(event) {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    setFilesSelected(files.length > 0);
-    setNumberOfSelectedFiles(files.length);
-  }
+    if (files) {
+      const maxSize = 10 * 1024 * 1024; // 10 MB
+      const validFiles = [];
+      const rejectedFiles = [];
+
+      // Separate valid and rejected files
+      Array.from(files).forEach((file) => {
+        if (file.size <= maxSize) {
+          validFiles.push(file);
+        } else {
+          rejectedFiles.push(file);
+        }
+      });
+
+      // Log rejected files to console and alert user
+      if (rejectedFiles.length > 0) {
+        console.warn("Rejected Files:", rejectedFiles);
+        alert(
+          `The following files were rejected because they exceed the 10 MB size limit:\n` +
+            rejectedFiles
+              .map(
+                (file) =>
+                  `- ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`
+              )
+              .join("\n")
+        );
+      }
+
+      setFilesSelected(validFiles.length > 0);
+      setNumberOfSelectedFiles(validFiles.length);
+
+      // Reset file input if all files are invalid
+      if (validFiles.length === 0) {
+        event.target.value = ""; // Reset file input
+      }
+
+      console.log("Valid Files:", validFiles);
+    }
+  };
 
   useEffect(() => {
     fetchFileCount();

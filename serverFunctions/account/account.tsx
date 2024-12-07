@@ -146,12 +146,95 @@ export async function syncFiles() {
   }
 }
 
+async function parseFailedToSyncFilesStatus(
+  knowledgeBaseId,
+  dataSourceId,
+  ingestionJobId
+) {
+  try {
+    const user = await currentUser();
+
+    if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+      throw new Error("Unable to retrieve user email address");
+    }
+    const userId = user.id;
+
+    if (!process.env.S3_BUCKET_NAME) {
+      throw new Error(
+        "S3 bucket name is not defined in the environment variables."
+      );
+    }
+    const bucketName = process.env.S3_BUCKET_NAME;
+
+    // Correct prefix construction
+    const prefix = `s3://${bucketName}/${userId}/`;
+    // console.log("Constructed Prefix:", prefix);
+
+    const input = {
+      knowledgeBaseId,
+      dataSourceId,
+      ingestionJobId,
+    };
+
+    const command = new GetIngestionJobCommand(input);
+    const response = await clientBedrockAgentClient.send(command);
+
+    if (!response || !response.ingestionJob) {
+      throw new Error("Failed to fetch ingestion job details.");
+    }
+
+    const failedToSyncFilesStatus = response.ingestionJob.failureReasons;
+    if (!failedToSyncFilesStatus || failedToSyncFilesStatus.length === 0) {
+      return [];
+    }
+
+    const splitFailureReasonsString = failedToSyncFilesStatus[0]
+      ?.slice(2, -2)
+      .split(/,(?![^[]*\])/);
+
+    const result = splitFailureReasonsString.map((reason) => {
+      try {
+        const filesMatch = reason.match(/\[Files: ([^\]]+)\]/); // Extract files inside [Files: ...]
+        const rawFiles = filesMatch ? filesMatch[1].split(", ") : [];
+
+        // Clean up file paths
+        const files = rawFiles.map((file) => {
+          if (file.startsWith(prefix)) {
+            const cleanedFile = file.slice(prefix.length); // Remove the prefix
+            // console.log("Original file:", file, "Cleaned file:", cleanedFile); // Log for debugging
+            return cleanedFile;
+          }
+          // console.log("File did not match prefix:", file);
+          return file; // Return unmodified if it doesn't match the prefix
+        });
+
+        const errorMessage = reason.replace(/\[Files: [^\]]+\]/, "").trim(); // Remove the files part
+
+        return { errorMessage, files };
+      } catch (innerError) {
+        console.error("Error parsing a failure reason:", innerError);
+        return {
+          errorMessage: "Unknown error while parsing failure reason.",
+          files: [],
+        };
+      }
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error in parseFailedToSyncFilesStatus:", error);
+    throw new Error(
+      "Failed to parse failed-to-sync files status. Please try again later."
+    );
+  }
+}
+
 export async function checkSyncFilesStatus() {
   try {
     const userInfo = await getCurrentUserInfoFromDynamoDb();
     const userDataSourceId = userInfo.data?.DataSourceId;
     const userKnowledgeBaseId = userInfo.data?.KnowledgeBaseId;
-    let failedToSyncFilesStatus = [];
+    let failedToSyncFiles = [];
 
     const input = {
       knowledgeBaseId: userKnowledgeBaseId,
@@ -171,22 +254,20 @@ export async function checkSyncFilesStatus() {
     if (
       response.ingestionJobSummaries[0].statistics?.numberOfDocumentsFailed >= 1
     ) {
-      const input = {
-        knowledgeBaseId: userKnowledgeBaseId,
-        dataSourceId: userDataSourceId,
-        ingestionJobId: ingestionJobId,
-      };
-      const command = new GetIngestionJobCommand(input);
-      const response = await clientBedrockAgentClient.send(command);
-      failedToSyncFilesStatus = response.ingestionJob?.failureReasons;
+      failedToSyncFiles = await parseFailedToSyncFilesStatus(
+        userKnowledgeBaseId,
+        userDataSourceId,
+        ingestionJobId
+      );
+      failedToSyncFiles =
+        failedToSyncFiles.find((entry) =>
+          entry.errorMessage.includes("no text content found")
+        )?.files || [];
     }
 
-    // console.log({
-    //   status: status,
-    //   failedToSyncFilesStatus: failedToSyncFilesStatus,
-    // });
+    // console.log(failedToSyncFiles);
 
-    return { status: status, failedToSyncFilesStatus: failedToSyncFilesStatus };
+    return { status: status, failedToSyncFiles: failedToSyncFiles };
   } catch (error) {
     console.log(error);
     return { status: "error", message: "Error" };
