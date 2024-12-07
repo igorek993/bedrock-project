@@ -291,11 +291,36 @@ export function UploadForm() {
                   {/* @ts-ignore */}
                   {file.name}
                 </span>
+
                 {/* File Size Column */}
                 {/* @ts-ignore */}
                 <span className="w-1/5 text-center">{file.size} MB</span>
+
                 {/* Action Buttons Column */}
-                <div className="w-1/3 flex justify-end gap-2">
+                <div className="w-1/3 flex justify-end items-center gap-2">
+                  {/* Warning Icon with Tooltip */}
+                  {failedToSyncFiles.includes(file.name) && (
+                    <div className="relative group">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-yellow-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        title="Failed to sync"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-9-3a1 1 0 012 0v4a1 1 0 01-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gray-800 text-white text-sm rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        No text content was found in the file.
+                      </div>
+                    </div>
+                  )}
+
                   {/* Download Button */}
                   <button
                     // @ts-ignore
