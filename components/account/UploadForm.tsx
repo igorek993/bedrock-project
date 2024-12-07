@@ -269,27 +269,12 @@ export function UploadForm() {
         </div>
       </div>
       {fileList.length != 0 && (
-        <div className="mt-4 overflow-y-auto max-h-[calc(100vh-400px)] border border-blue-400 p-4 rounded-lg bg-gray-800 w-full">
-          {/* Header Row */}
-          <div className="flex justify-between items-center mb-2 text-white font-bold">
-            <span className="w-2/5">Name</span>
-            <span className="w-1/5 text-center">Size</span>
-            <span className="w-1/3 text-right"></span>
-          </div>
-          {/* File List */}
-          <ul>
-            {fileList.map((file, index) => (
-              <FilesList
-                key={index} // Key is used here
-                index={index} // Pass index as a prop
-                file={file}
-                failedToSyncFiles={failedToSyncFiles}
-                handleDownload={handleDownload}
-                handleDelete={handleDelete}
-              />
-            ))}
-          </ul>
-        </div>
+        <FilesList
+          fileList={fileList}
+          failedToSyncFiles={failedToSyncFiles}
+          handleDownload={handleDownload}
+          handleDelete={handleDelete}
+        />
       )}
       <button onClick={checkSyncFilesStatus}>TESTTTTTTTTT</button>
     </div>
