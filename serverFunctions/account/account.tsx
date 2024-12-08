@@ -39,7 +39,7 @@ const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
   region: "ap-southeast-2",
 });
 
-const clientDynamoDB = new DynamoDBClient({});
+const clientDynamoDB = new DynamoDBClient({ region: "ap-southeast-2" });
 const clientDynamoDBDocumentClient =
   DynamoDBDocumentClient.from(clientDynamoDB);
 
