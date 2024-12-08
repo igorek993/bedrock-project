@@ -27,36 +27,39 @@ import {
   RetrieveAndGenerateCommand,
 } from "@aws-sdk/client-bedrock-agent-runtime";
 
+// Ensure credentials are defined
+if (!process.env.ACCESS_KEY_ID || !process.env.SECRET_ACCESS_KEY) {
+  throw new Error("Missing AWS credentials in environment variables");
+}
+
+// Common credentials object
+const awsCredentials = {
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+};
+
+// Initialize S3Client
 const clientS3 = new S3Client({
   region: "ap-southeast-2",
-  credentials: {
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-  },
+  credentials: awsCredentials,
 });
 
+// Initialize BedrockAgentClient
 const clientBedrockAgentClient = new BedrockAgentClient({
   region: "ap-southeast-2",
-  credentials: {
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-  },
+  credentials: awsCredentials,
 });
 
+// Initialize BedrockAgentRuntimeClient
 const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
   region: "ap-southeast-2",
-  credentials: {
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-  },
+  credentials: awsCredentials,
 });
 
+// Initialize DynamoDBClient
 const clientDynamoDB = new DynamoDBClient({
   region: "ap-southeast-2",
-  credentials: {
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-  },
+  credentials: awsCredentials,
 });
 const clientDynamoDBDocumentClient =
   DynamoDBDocumentClient.from(clientDynamoDB);
