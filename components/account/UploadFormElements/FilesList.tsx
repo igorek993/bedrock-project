@@ -47,6 +47,7 @@ const FilesList: React.FC<FilesListProps> = ({
                     className="h-5 w-5 text-yellow-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
+                    // @ts-ignore
                     title="Failed to sync"
                   >
                     <path

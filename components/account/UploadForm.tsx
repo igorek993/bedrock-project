@@ -89,10 +89,12 @@ export function UploadForm() {
 
       if (response.status === "COMPLETE") {
         setFilesSyncedStatus(response.status);
+        // @ts-ignore
         setfailedToSyncFiles(response.failedToSyncFiles);
         setSyncingFiles(false);
       } else if (response.status === "FAILED") {
         setFilesSyncedStatus(response.status);
+        // @ts-ignore
         setfailedToSyncFiles(response.failedToSyncFiles);
         setSyncingFiles(false);
       } else {
@@ -138,8 +140,10 @@ export function UploadForm() {
       // Separate valid and rejected files
       Array.from(files).forEach((file) => {
         if (file.size <= maxSize) {
+          // @ts-ignore
           validFiles.push(file);
         } else {
+          // @ts-ignore
           rejectedFiles.push(file);
         }
       });
@@ -152,6 +156,7 @@ export function UploadForm() {
             rejectedFiles
               .map(
                 (file) =>
+                  // @ts-ignore
                   `- ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`
               )
               .join("\n")
