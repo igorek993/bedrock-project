@@ -14,7 +14,7 @@ resource "aws_amplify_app" "project_fufel" {
             - npm ci --cache .npm --prefer-offline --force
         build:
           commands:
-            - env | grep -e NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY -e CLERK_SECRET_KEY -e S3_BUCKET_NAME >> .env
+            - env | grep -e ACCESS_KEY_ID -e SECRET_ACCESS_KEY -e USER_INFO_DYNAMO_DB_TABLE -e NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY -e CLERK_SECRET_KEY -e S3_BUCKET_NAME >> .env
             - npm run build
       artifacts:
         baseDirectory: .next

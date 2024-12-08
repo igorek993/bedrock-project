@@ -29,17 +29,35 @@ import {
 
 const clientS3 = new S3Client({
   region: "ap-southeast-2",
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  },
 });
 
 const clientBedrockAgentClient = new BedrockAgentClient({
   region: "ap-southeast-2",
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  },
 });
 
 const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
   region: "ap-southeast-2",
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  },
 });
 
-const clientDynamoDB = new DynamoDBClient({ region: "ap-southeast-2" });
+const clientDynamoDB = new DynamoDBClient({
+  region: "ap-southeast-2",
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  },
+});
 const clientDynamoDBDocumentClient =
   DynamoDBDocumentClient.from(clientDynamoDB);
 
