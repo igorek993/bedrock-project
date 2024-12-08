@@ -3,7 +3,7 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import parse from "html-react-parser";
 import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
@@ -412,14 +412,15 @@ export async function generateReferences(initialResponse) {
 
 export async function processClientMessage(message: string) {
   try {
+    const userInfo = await getCurrentUserInfoFromDynamoDb();
+    const userKnowledgeBaseId = userInfo.data?.KnowledgeBaseId;
+
     const input = {
       input: { text: message },
       retrieveAndGenerateConfiguration: {
         type: "KNOWLEDGE_BASE", // or "EXTERNAL_SOURCES"
         knowledgeBaseConfiguration: {
-          knowledgeBaseId: process.env.KNOWLEDGEBASE_ID, // Replace with your actual Knowledge Base ID
-          // modelArn:
-          //   "arn:aws:bedrock:ap-southeast-2:665628331607:inference-profile/apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
+          knowledgeBaseId: userKnowledgeBaseId, // Replace with your actual Knowledge Base ID
           modelArn:
             "arn:aws:bedrock:ap-southeast-2::foundation-model/anthropic.claude-3-haiku-20240307-v1:0", // Replace with your model ARN
         },
@@ -430,7 +431,7 @@ export async function processClientMessage(message: string) {
     const response = await clientBedrockAgentRuntimeClient.send(command);
 
     // console.log("received response");
-    // const finalHtml = await generateReferences(response);
+    const finalHtml = await generateReferences(response);
     // console.log("end");
 
     return {

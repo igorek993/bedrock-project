@@ -8,7 +8,7 @@ export function ChatWindow() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Hi! I'm your files assistant. How can I help you today?",
+      content: "Hi! I'm Rahul, your assistant. How can I help you today?",
     },
   ]);
   const [message, setMessage] = useState("");
