@@ -27,17 +27,11 @@ import {
   RetrieveAndGenerateCommand,
 } from "@aws-sdk/client-bedrock-agent-runtime";
 
-const clientS3 = new S3Client({
-  region: process.env.AWS_REGION,
-});
+const clientS3 = new S3Client({});
 
-const clientBedrockAgentClient = new BedrockAgentClient({
-  region: process.env.AWS_REGION,
-});
+const clientBedrockAgentClient = new BedrockAgentClient({});
 
-const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({
-  region: process.env.AWS_REGION,
-});
+const clientBedrockAgentRuntimeClient = new BedrockAgentRuntimeClient({});
 
 const clientDynamoDB = new DynamoDBClient({});
 const clientDynamoDBDocumentClient =
