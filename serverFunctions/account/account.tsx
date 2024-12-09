@@ -427,6 +427,8 @@ export async function generateReferences(initialResponse) {
           return reference;
         })
       );
+
+      console.log(references);
       const citationText = citation.generatedResponsePart.textResponsePart.text;
       finalHtml = finalHtml.replace(
         citationText,

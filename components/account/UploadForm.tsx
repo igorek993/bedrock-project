@@ -181,7 +181,7 @@ export function UploadForm() {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-screen max-h-screen">
+    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-[83vh]">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -287,7 +287,7 @@ export function UploadForm() {
           handleDelete={handleDelete}
         />
       )}
-      <button onClick={checkSyncFilesStatus}>TESTTTTTTTTT</button>
+      {/* <button onClick={checkSyncFilesStatus}>TESTTTTTTTTT</button> */}
     </div>
   );
 }

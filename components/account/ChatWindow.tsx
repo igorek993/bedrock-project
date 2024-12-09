@@ -83,7 +83,7 @@ export function ChatWindow() {
   return (
     <Box
       // width="100vw"
-      height="100vh"
+      height="83vh"
       display="flex"
       flexDirection="column"
       justifyContent="center"
@@ -98,7 +98,7 @@ export function ChatWindow() {
     >
       {/* Main Chat Box */}
       <Box
-        width="500px"
+        width="100%"
         height="750px"
         sx={{
           background: "linear-gradient(145deg, #000000, #003366)", // Gradient background for the chatbot
