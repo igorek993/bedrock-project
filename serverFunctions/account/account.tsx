@@ -6,6 +6,7 @@ import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { currentUser } from "@clerk/nextjs/server";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import he from "he";
 
 import {
   S3Client,
@@ -388,9 +389,11 @@ function getS3DocumentName(s3ObjectString) {
 }
 
 function getReferenceHover(count, body, url, name) {
+  const escapedBody = he.encode(body);
+
   return `<span class="reference-hover-target">[${count}]
 <div class="reference-hover-div">
-  ${body}
+  ${escapedBody}
   <a class="reference-hover-link" target="_blank" href="${url}">Скачать документ: ${name}</a>
 </div>
 </span>`;
@@ -400,12 +403,13 @@ export async function generateReferences(initialResponse) {
   try {
     const inititalText = initialResponse.output.text;
     let finalHtml = inititalText;
-    // console.log(JSON.stringify(initialResponse, undefined, 2));
 
-    let citationCount = 1;
+    let citationCount = 1; // Start citation count
+
     for (const citation of initialResponse.citations) {
+      // Process references sequentially to maintain order
       const references = await Promise.all(
-        citation.retrievedReferences.map(async (reference) => {
+        citation.retrievedReferences.map(async (reference, index) => {
           const fullBody = reference.content.text;
           const body =
             fullBody.length > 200
@@ -416,19 +420,23 @@ export async function generateReferences(initialResponse) {
             reference.location.s3Location.uri
           );
           const downloadUrl = await generatePresignedDownloadUrl(documentName);
-          reference = getReferenceHover(
-            citationCount,
+
+          // Use citationCount for overall numbering
+          const hoverMarkup = getReferenceHover(
+            citationCount + index, // Use index-based calculation
             body,
             downloadUrl,
             documentName
           );
-          citationCount++;
 
-          return reference;
+          return hoverMarkup;
         })
       );
 
-      console.log(references);
+      // Increment citationCount by the number of references processed
+      citationCount += citation.retrievedReferences.length;
+
+      // Replace citation text with references
       const citationText = citation.generatedResponsePart.textResponsePart.text;
       finalHtml = finalHtml.replace(
         citationText,
