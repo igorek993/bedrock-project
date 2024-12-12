@@ -9,6 +9,9 @@ import {
 import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import FilesList from "./UploadFormElements/FilesList";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import WarningIcon from "@mui/icons-material/Warning";
 
 export function UploadForm() {
   const [objectCount, setObjectCount] = useState();
@@ -181,7 +184,7 @@ export function UploadForm() {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-[83vh]">
+    <div className="mx-auto p-6 rounded-lg shadow-lg bg-gradient-to-br from-black to-blue-900 border-2 border-blue-400 text-white h-[83vh]">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -190,14 +193,50 @@ export function UploadForm() {
           uploadFiles(formData);
         }}
       >
-        <label
-          htmlFor="files"
-          className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 font-sans rounded-md cursor-pointer mt-4 block mb-5"
-        >
-          {!filesSelected
-            ? "Select Files to Upload"
-            : `${numberOfSelectedFiles} files to upload`}
-        </label>
+        <div className="flex gap-4 items-center">
+          <label
+            htmlFor="files"
+            className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 font-sans rounded-md cursor-pointer flex-1 text-center"
+          >
+            {!filesSelected
+              ? "Select Files to Upload"
+              : `${numberOfSelectedFiles} files to upload`}
+          </label>
+          <button
+            type="submit"
+            disabled={!filesSelected || filesUploading}
+            className={`py-2 px-4 font-bold rounded-md flex-1 text-center transition-all duration-200 shadow ${
+              filesSelected
+                ? "bg-blue-700 hover:bg-blue-800 text-white"
+                : "bg-gray-500 text-gray-300 cursor-not-allowed"
+            }`}
+          >
+            {filesUploading ? (
+              <svg
+                className="animate-spin h-5 w-7 text-white mx-auto"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+            ) : (
+              "Upload"
+            )}
+          </button>
+        </div>
         <input
           type="file"
           id="files"
@@ -207,66 +246,45 @@ export function UploadForm() {
           onChange={handleFileChange}
           className="hidden"
         />
-        <button
-          type="submit"
-          disabled={!filesSelected || filesUploading}
-          className={`py-2 px-4 font-bold rounded-lg transition-all duration-200 shadow ${
-            filesSelected
-              ? "bg-blue-700 hover:bg-blue-800 text-white"
-              : "bg-gray-500 text-gray-300 cursor-not-allowed"
-          }`}
-        >
-          {filesUploading ? (
-            <svg
-              className="animate-spin h-5 w-7 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              ></path>
-            </svg>
-          ) : (
-            "Upload"
-          )}
-        </button>
       </form>
+
       {/* Files sync UI logic */}
       <div className="">
         {objectCount == 0 && (
-          <div className="flex items-center justify-center m-8">
+          <div className="flex items-center justify-center m-8 p-4 bg-gray-100 rounded-lg text-center">
             No files in the database yet, try to upload your first file!
           </div>
         )}
         {filesSyncedStatus === "IN_PROGRESS" && fileList.length >= 1 && (
-          <div className="flex items-center justify-center m-8">
+          <div className="flex items-center justify-center m-8 p-4 rounded-lg text-center">
             Processing files
-            <CircularProgress className="ml-5" color="success" />
+            <CircularProgress className="ml-2" color="primary" />
           </div>
         )}
         {filesSyncedStatus === "COMPLETE" &&
           fileList.length >= 1 &&
-          failedToSyncFiles.length == 0 && <div>Files are in sync</div>}
+          failedToSyncFiles.length == 0 && (
+            <div className="flex items-center justify-center m-8 p-4 rounded-lg text-center">
+              <CheckCircleIcon className="mr-2 text-green-500" />
+              Files are in sync
+            </div>
+          )}
         {filesSyncedStatus === "FAILED" && fileList.length >= 1 && (
-          <div>Failed to sync</div>
+          <div className="flex items-center justify-center m-8 p-4 rounded-lg text-center">
+            <ErrorIcon className="mr-2 text-red-500" />
+            Failed to sync
+          </div>
         )}
         {failedToSyncFiles.length > 0 && !syncingFiles && (
-          <div>Files are partially synced</div>
+          <div className="flex items-center justify-center m-8 p-4 rounded-lg text-center">
+            <WarningIcon className="mr-2 text-yellow-500" />
+            Files are partially synced
+          </div>
         )}
-        {/* End of files sync UI logic */}
+
+        {/* Current files count */}
         <div
-          className="text-center px-4 py-2 rounded-lg"
+          className="text-center px-4 py-2 rounded-lg mt-4"
           style={{
             background: "rgba(255, 255, 255, 0.1)",
             border: "2px solid #42a5f5",
@@ -279,6 +297,7 @@ export function UploadForm() {
           <span style={{ fontSize: "1.2rem" }}>{objectCount}</span>
         </div>
       </div>
+
       {fileList.length != 0 && (
         <FilesList
           fileList={fileList}
@@ -287,7 +306,6 @@ export function UploadForm() {
           handleDelete={handleDelete}
         />
       )}
-      {/* <button onClick={checkSyncFilesStatus}>TESTTTTTTTTT</button> */}
     </div>
   );
 }

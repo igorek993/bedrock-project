@@ -5,6 +5,8 @@
 .reference-hover-div {
   visibility: hidden;
   position: absolute;
+  left: 50%;
+  top: 0;
   opacity: 0;
   background-color: white;
   color: black;
@@ -16,7 +18,7 @@
   max-width: 300px; /* Limit the width */
   min-width: 270px;
   word-wrap: break-word; /* Break long words if necessary */
-  transform: translateY(-100%); /* Center the tooltip horizontally */
+  transform: translateY(-100%);
 }
 
 .reference-hover-target {
@@ -32,7 +34,7 @@
 
 .reference-hover-link {
   display: block;
-  background-color: grey; /* Default background color */
+  background-color: #8ecae6; /* Default background color */
   border: 1px solid black; /* Adds a black border */
   padding: 5px; /* Optional: Adds spacing */
   border-radius: 3px; /* Optional: Rounds the corners */

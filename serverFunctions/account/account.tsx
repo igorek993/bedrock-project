@@ -390,11 +390,12 @@ function getS3DocumentName(s3ObjectString) {
 
 function getReferenceHover(count, body, url, name) {
   const escapedBody = he.encode(body);
+  const truncatedName = name.length > 30 ? name.substring(0, 30) + "..." : name;
 
   return `<span class="reference-hover-target">[${count}]
 <div class="reference-hover-div">
   ${escapedBody}
-  <a class="reference-hover-link" target="_blank" href="${url}">Скачать документ: ${name}</a>
+  <a class="reference-hover-link" target="_blank" href="${url}">Download source: ${truncatedName}</a>
 </div>
 </span>`;
 }

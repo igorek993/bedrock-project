@@ -8,7 +8,7 @@ export function ChatWindow() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Hi! I'm Rahul, your assistant. How can I help you today?",
+      content: "Hello! I'm your files secretary. How can I help you today?",
     },
   ]);
   const [message, setMessage] = useState("");
@@ -124,28 +124,8 @@ export function ChatWindow() {
           borderBottom="1px solid #0d47a1" // Subtle border at the bottom
         >
           <Typography variant="h6" color="#ffffff" fontWeight="bold">
-            Crescent Cloud Log
+            FileNova
           </Typography>
-          <Box
-            position="absolute"
-            top="20%"
-            left="16px"
-            width="50px" // Increased width
-            height="50px" // Increased height
-            bgcolor="rgba(255, 255, 255, 0.1)"
-            borderRadius="50%"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            boxShadow="0px 4px 12px rgba(0, 0, 0, 0.3)"
-          >
-            {/* <img
-              src="/crescentcloudlogo.png"
-              alt="Logo"
-              style={{ width: "100px" }}
-            />{" "} */}
-            {/* Adjusted size */}
-          </Box>
         </Box>
 
         {/* Messages Container */}

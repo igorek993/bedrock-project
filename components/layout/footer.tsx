@@ -3,7 +3,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <div className="bg-gray-400">
+    <div className="bg-[#8ecae6]">
       <ul className="flex justify-between py-4 px-6">
         <div>
           <Link href="/about-us">

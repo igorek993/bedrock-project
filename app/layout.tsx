@@ -12,9 +12,9 @@ const inconsolata = Inconsolata({ subsets: ["latin"] });
 const roboto = Roboto({ subsets: ["latin"], weight: ["400"] });
 
 export const metadata: Metadata = {
-  title: "project-fufel",
-  description: "project-fufel",
-  keywords: "project-fufel",
+  title: "FileNova",
+  description: "FileNova",
+  keywords: "FileNova",
 };
 
 export default function RootLayout({
