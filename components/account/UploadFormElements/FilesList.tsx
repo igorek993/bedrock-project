@@ -56,8 +56,9 @@ const FilesList: React.FC<FilesListProps> = ({
                       clipRule="evenodd"
                     />
                   </svg>
-                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gray-800 text-whiterounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    No text content was found in the file.
+                  <div className="absolute min-w-max bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gray-800 text-whiterounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    No text content
+                    <br /> was found in the file.
                   </div>
                 </div>
               )}

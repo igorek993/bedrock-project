@@ -15,7 +15,7 @@ import WarningIcon from "@mui/icons-material/Warning";
 
 export function UploadForm() {
   const [objectCount, setObjectCount] = useState();
-  const [filesSyncedStatus, setFilesSyncedStatus] = useState("");
+  const [filesSyncedStatus, setFilesSyncedStatus] = useState();
   const [filesUploading, setFilesUploading] = useState(false);
   const [filesSelected, setFilesSelected] = useState(false);
   const [failedToSyncFiles, setfailedToSyncFiles] = useState([]);
@@ -249,7 +249,7 @@ export function UploadForm() {
       </form>
 
       {/* Files sync UI logic */}
-      <div className="">
+      <div className="flex justify-self-center items-center">
         {objectCount == 0 && (
           <div className="flex items-center justify-center m-8 p-4 bg-gray-100 rounded-lg text-center">
             No files in the database yet, try to upload your first file!
@@ -283,19 +283,21 @@ export function UploadForm() {
         )}
 
         {/* Current files count */}
-        <div
-          className="text-center px-4 py-2 rounded-lg mt-4"
-          style={{
-            background: "rgba(255, 255, 255, 0.1)",
-            border: "2px solid #42a5f5",
-            color: "#64b5f6",
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-          }}
-        >
-          Current files count:
-          <span style={{ fontSize: "1.2rem" }}>{objectCount}</span>
-        </div>
+        {filesSyncedStatus !== undefined && filesSyncedStatus !== null && (
+          <div
+            className="text-center px-4 py-2 rounded-lg"
+            style={{
+              background: "rgba(255, 255, 255, 0.1)",
+              border: "2px solid #42a5f5",
+              color: "#64b5f6",
+              fontWeight: "bold",
+              fontSize: "1.1rem",
+            }}
+          >
+            Current files count:
+            <span style={{ fontSize: "1.2rem" }}>{objectCount}</span>
+          </div>
+        )}
       </div>
 
       {fileList.length != 0 && (
