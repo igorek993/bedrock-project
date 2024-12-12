@@ -70,6 +70,7 @@ export function UploadForm() {
         }, 100);
       }
       syncFiles();
+      // @ts-ignore
       setFilesSyncedStatus("IN_PROGRESS");
       localCheckSyncFilesStatus();
       fetchFileCount();
@@ -92,16 +93,19 @@ export function UploadForm() {
       const response = await checkSyncFilesStatus();
 
       if (response.status === "COMPLETE") {
+        // @ts-ignore
         setFilesSyncedStatus(response.status);
         // @ts-ignore
         setfailedToSyncFiles(response.failedToSyncFiles);
         setSyncingFiles(false);
       } else if (response.status === "FAILED") {
+        // @ts-ignore
         setFilesSyncedStatus(response.status);
         // @ts-ignore
         setfailedToSyncFiles(response.failedToSyncFiles);
         setSyncingFiles(false);
       } else {
+        // @ts-ignore
         setFilesSyncedStatus("IN_PROGRESS");
 
         // Retry after 5 seconds
@@ -130,6 +134,7 @@ export function UploadForm() {
     setFilesSelected(false);
     fetchFileCount();
     syncFiles();
+    // @ts-ignore
     setFilesSyncedStatus("IN_PROGRESS");
     localCheckSyncFilesStatus();
   }
