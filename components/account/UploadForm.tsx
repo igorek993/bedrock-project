@@ -294,7 +294,7 @@ export function UploadForm() {
               fontSize: "1.1rem",
             }}
           >
-            Current files count:
+            Current files count:&nbsp;
             <span style={{ fontSize: "1.2rem" }}>{objectCount}</span>
           </div>
         )}
