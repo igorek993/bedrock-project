@@ -10,8 +10,10 @@ const Navbar = () => {
   const pathname = usePathname();
 
   // Define reusable styles for active and inactive states
-  const activeClass = "bg-[#219ebc] font-bold py-4 px-4 rounded-xl";
-  const inactiveClass = "text-black py-4 px-4";
+  const activeClass =
+    "bg-blue-500 text-white font-bold py-2 px-4 rounded-xl shadow-lg hover:bg-blue-600 transition";
+  const inactiveClass =
+    "bg-white text-blue-600 py-2 px-4 rounded-md shadow-md hover:bg-blue-500 hover:text-white transition";
 
   // Helper function to check if the tab is active
   const isActive = (path: string) => {
@@ -26,31 +28,36 @@ const Navbar = () => {
     isActive(path) ? activeClass : inactiveClass;
 
   return (
-    <div
-      className="bg-[#8ecae6] rounded-b-xl bg-no-repeat bg-left bg-contain pl-1 mb-1"
-      // style={{
-      //   backgroundImage: "url('/filenova-high-resolution-logo-bigger.png')",
-      // }}
-    >
-      <ul className="flex justify-between px-6">
-        <div>
+    <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 shadow-md">
+      <ul className="flex justify-between items-center px-6">
+        {/* Logo */}
+        <div className="text-2xl font-bold">
           <Link href="/">
-            <li className={getClassName("/")}>Home</li>
+            <span className="hover:text-gray-200 transition">FileNova</span>
           </Link>
         </div>
-        {isSignedIn && (
-          <div className="flex items-center">
-            <Link href="/chat">
-              <li className={getClassName("/chat")}>Chat</li>
-            </Link>
-            <Link className="ml-12" href="/file-management">
-              <li className={getClassName("/file-management")}>
-                File management
-              </li>
-            </Link>
-          </div>
-        )}
-        <div className="flex gap-6 items-center">
+
+        {/* Navigation Links */}
+        <div className="flex items-center gap-8">
+          {/* <Link href="/">
+            <li className={getClassName("/")}>Home</li>
+          </Link> */}
+          {isSignedIn && (
+            <>
+              <Link href="/chat">
+                <li className={getClassName("/chat")}>Chat</li>
+              </Link>
+              <Link href="/file-management">
+                <li className={getClassName("/file-management")}>
+                  File Management
+                </li>
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Auth Links */}
+        <div className="flex items-center gap-6">
           <SignedOut>
             <Link href="/sign-in">
               <li className={getClassName("/sign-in")}>Login</li>

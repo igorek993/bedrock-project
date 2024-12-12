@@ -72,6 +72,7 @@ export function UploadForm() {
       syncFiles();
       setFilesSyncedStatus("IN_PROGRESS");
       localCheckSyncFilesStatus();
+      fetchFileCount();
     } catch (error) {
       console.error("An error occurred while deleting the file:", error);
       // Reset the processing state in case of an error
@@ -251,7 +252,7 @@ export function UploadForm() {
       {/* Files sync UI logic */}
       <div className="flex justify-self-center items-center">
         {objectCount == 0 && (
-          <div className="flex items-center justify-center m-8 p-4 bg-gray-100 rounded-lg text-center">
+          <div className="flex items-center justify-center m-8 p-4 rounded-lg text-center">
             No files in the database yet, try to upload your first file!
           </div>
         )}
