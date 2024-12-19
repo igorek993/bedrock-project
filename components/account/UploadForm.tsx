@@ -142,7 +142,7 @@ export function UploadForm() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const maxSize = 45 * 1024 * 1024; // 10 MB
+      const maxSize = 10 * 1024 * 1024; // 10 MB
       const validFiles = [];
       const rejectedFiles = [];
 
@@ -161,7 +161,7 @@ export function UploadForm() {
       if (rejectedFiles.length > 0) {
         console.warn("Rejected Files:", rejectedFiles);
         alert(
-          `The following files were rejected because they exceed the 45 MB size limit:\n` +
+          `The following files were rejected because they exceed the 10 MB size limit:\n` +
             rejectedFiles
               .map(
                 (file) =>
