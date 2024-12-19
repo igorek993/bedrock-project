@@ -22,6 +22,7 @@ module "aurora_project_fufel" {
   master_username      = "fufel"
   database_name        = "project_fufel"
   skip_final_snapshot  = true
+  storage_type         = "aurora-iopt1"
 
   instances = {
     one = { instance_class = "db.serverless" }
