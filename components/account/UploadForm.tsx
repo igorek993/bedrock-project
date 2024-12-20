@@ -142,7 +142,8 @@ export function UploadForm() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const maxSize = 10 * 1024 * 1024; // 10 MB
+      const maxSizeMb = 10;
+      const maxSize = maxSizeMb * 1024 * 1024;
       const validFiles = [];
       const rejectedFiles = [];
 
