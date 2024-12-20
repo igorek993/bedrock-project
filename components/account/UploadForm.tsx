@@ -162,7 +162,7 @@ export function UploadForm() {
       if (rejectedFiles.length > 0) {
         console.warn("Rejected Files:", rejectedFiles);
         alert(
-          `The following files were rejected because they exceed the 10 MB size limit:\n` +
+          `The following files were rejected because they exceed the 45 MB size limit:\n` +
             rejectedFiles
               .map(
                 (file) =>
